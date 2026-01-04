@@ -8,12 +8,6 @@
   justify-content: center;
   z-index: 1000;
   padding: 20px;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .modal-content {
@@ -26,19 +20,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   position: relative;
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid var(--border-color);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 @media (max-width: 768px) {
@@ -63,7 +45,6 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: all 0.2s ease;
 }
 
 .close-btn:hover {
@@ -143,12 +124,6 @@
   background: var(--tag-bg);
   padding: 6px 12px;
   border-radius: 16px;
-  transition: all 0.2s ease;
-}
-
-.tag:hover {
-  color: var(--accent-color);
-  background: var(--accent-bg);
 }
 
 .modal-meta {

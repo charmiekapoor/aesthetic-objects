@@ -1,61 +1,122 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import ImageModal from './ImageModal';
+import { useState, useRef, useCallback } from 'react';
 import { galleryImages } from '../data/images';
 import './Gallery.css';
 
-// Configuration: 4 folds, 15-17 images per fold
-const FOLDS = 4;
-const IMAGES_PER_FOLD = 16;
-const MAX_IMAGES = FOLDS * IMAGES_PER_FOLD; // 64 images max
+// Configuration
+const MAX_IMAGES = 64;
 
-// Generate scattered positions for 4 folds with ~16 images each
+// Generate organic scattered positions without overlapping
 const generatePositions = (count) => {
   const positions = [];
   const actualCount = Math.min(count, MAX_IMAGES);
-  const widths = ['9%', '10%', '11%', '12%', '13%'];
-  const rotations = [-5, -3, -1, 0, 1, 3, 5];
+  const rotations = [-12, -8, -5, -3, 0, 3, 5, 8, 12];
   
   // Seeded random for consistent layout
-  const seededRandom = (seed) => {
-    const x = Math.sin(seed * 9999) * 10000;
-    return x - Math.floor(x);
+  let seed = 42;
+  const seededRandom = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
   };
   
+  // Calculate width based on distance from center - larger in center, smaller at edges
+  const getWidthForPosition = (leftPos) => {
+    // Center is at 50%, calculate distance from center (0-50)
+    const distanceFromCenter = Math.abs(leftPos - 50);
+    // Normalize to 0-1 (0 = center, 1 = edge)
+    const normalizedDistance = distanceFromCenter / 50;
+    // Larger in center (14-16%), smaller at edges (7-9%)
+    const minWidth = 7 + seededRandom() * 2;
+    const maxWidth = 14 + seededRandom() * 2;
+    const width = maxWidth - (normalizedDistance * (maxWidth - minWidth));
+    return Math.round(width);
+  };
+  
+  // Collision detection - check if new position overlaps with existing
+  const checkCollision = (newPos, existing) => {
+    const padding = 2; // % padding between images
+    for (const pos of existing) {
+      const overlapX = Math.abs(newPos.left - pos.left) < (newPos.widthNum + pos.widthNum) / 2 + padding;
+      const overlapY = Math.abs(newPos.top - pos.top) < 5 + padding; // assume ~5% height per image
+      if (overlapX && overlapY) return true;
+    }
+    return false;
+  };
+  
+  // Place images with organic flow - zigzag pattern with randomness
+  let currentTop = 2;
+  let direction = 1; // 1 = moving right, -1 = moving left
+  let currentLeft = 5;
+  
   for (let i = 0; i < actualCount; i++) {
-    // Determine which fold this image belongs to
-    const fold = Math.floor(i / IMAGES_PER_FOLD);
-    const indexInFold = i % IMAGES_PER_FOLD;
+    const rotate = rotations[Math.floor(seededRandom() * rotations.length)];
     
-    // Each fold is 25% of total height (100% / 4 folds)
-    const foldStart = fold * 25;
-    const foldHeight = 23; // Leave small gap between folds
+    // Try to find a non-overlapping position
+    let attempts = 0;
+    let finalPos = null;
     
-    // Scatter within the fold - 4 rows of ~4 images
-    const row = Math.floor(indexInFold / 4);
-    const col = indexInFold % 4;
+    while (attempts < 50) {
+      // Organic flow: zigzag down the page with randomness
+      const randomOffsetX = (seededRandom() - 0.5) * 15;
+      const randomOffsetY = (seededRandom() - 0.5) * 2;
+      
+      const testLeft = Math.max(2, Math.min(85, currentLeft + randomOffsetX));
+      const widthNum = getWidthForPosition(testLeft);
+      
+      const testPos = {
+        top: currentTop + randomOffsetY,
+        left: testLeft,
+        widthNum,
+      };
+      
+      if (!checkCollision(testPos, positions)) {
+        finalPos = testPos;
+        break;
+      }
+      attempts++;
+      
+      // If collision, try nearby positions
+      currentLeft += (seededRandom() - 0.3) * 20 * direction;
+      if (currentLeft > 80 || currentLeft < 5) {
+        direction *= -1;
+        currentTop += 4 + seededRandom() * 2;
+        currentLeft = direction > 0 ? 5 + seededRandom() * 10 : 75 - seededRandom() * 10;
+      }
+    }
     
-    // Base positions within fold
-    const baseTop = foldStart + (row * 5.5) + 2;
-    const baseLeft = (col * 22) + 5;
-    
-    // Add organic randomness
-    const topOffset = (seededRandom(i * 7 + 1) - 0.5) * 4;
-    const leftOffset = (seededRandom(i * 13 + 2) - 0.5) * 10;
+    // Fallback if no position found
+    if (!finalPos) {
+      const widthNum = getWidthForPosition(currentLeft);
+      finalPos = {
+        top: currentTop,
+        left: currentLeft,
+        widthNum,
+      };
+    }
     
     positions.push({
-      top: Math.max(foldStart + 1, Math.min(foldStart + foldHeight, baseTop + topOffset)),
-      left: Math.max(3, Math.min(85, baseLeft + leftOffset)),
-      width: widths[Math.floor(seededRandom(i * 17 + 3) * widths.length)],
-      rotate: rotations[Math.floor(seededRandom(i * 23 + 4) * rotations.length)],
-      zIndex: Math.floor(seededRandom(i * 31 + 5) * 6) + 1,
+      top: finalPos.top,
+      left: finalPos.left,
+      width: `${finalPos.widthNum}%`,
+      widthNum: finalPos.widthNum,
+      rotate,
+      zIndex: Math.floor(seededRandom() * 3) + 1,
     });
+    
+    // Move to next position with organic flow
+    currentLeft += (15 + seededRandom() * 12) * direction;
+    
+    // Bounce off edges and move down
+    if (currentLeft > 78 || currentLeft < 8) {
+      direction *= -1;
+      currentTop += 5 + seededRandom() * 3;
+      currentLeft = direction > 0 ? 5 + seededRandom() * 8 : 78 - seededRandom() * 8;
+    }
   }
   
   return positions;
 };
 
 function Gallery() {
-  const [selectedImage, setSelectedImage] = useState(null);
   
   // Limit to MAX_IMAGES (64 images across 4 folds)
   const displayedImages = galleryImages.slice(0, MAX_IMAGES);
@@ -70,47 +131,9 @@ function Gallery() {
   const [dragging, setDragging] = useState(null);
   const [maxZIndex, setMaxZIndex] = useState(100);
   
-  // Mouse motion offset for all frames
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
-  
   const dragRef = useRef({ startX: 0, startY: 0, startLeft: 0, startTop: 0 });
   const containerRef = useRef(null);
   const hasDragged = useRef(false);
-  const lastMousePos = useRef({ x: 0, y: 0 });
-
-  // Track mouse movement and update offset
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      const deltaX = e.clientX - lastMousePos.current.x;
-      const deltaY = e.clientY - lastMousePos.current.y;
-      
-      // Only update if there's actual movement
-      if (deltaX !== 0 || deltaY !== 0) {
-        setMouseOffset(prev => ({
-          // Mouse UP (negative deltaY) → frames DOWN (positive offset)
-          // Mouse RIGHT (positive deltaX) → frames LEFT (negative offset)
-          x: Math.max(-50, Math.min(50, prev.x - deltaX * 0.3)),
-          y: Math.max(-50, Math.min(50, prev.y + deltaY * 0.3))
-        }));
-      }
-      
-      lastMousePos.current = { x: e.clientX, y: e.clientY };
-    };
-    
-    // Decay offset back to zero over time
-    const decayInterval = setInterval(() => {
-      setMouseOffset(prev => ({
-        x: Math.abs(prev.x) < 0.5 ? 0 : prev.x * 0.95,
-        y: Math.abs(prev.y) < 0.5 ? 0 : prev.y * 0.95
-      }));
-    }, 16);
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      clearInterval(decayInterval);
-    };
-  }, []);
 
   const handleMouseDown = useCallback((e, imageId) => {
     e.preventDefault();
@@ -157,7 +180,7 @@ function Gallery() {
 
     setPositions(prev => prev.map(p => 
       p.id === dragging 
-        ? { ...p, left: newLeft, top: newTop, rotate: 0 }
+        ? { ...p, left: newLeft, top: newTop }
         : p
     ));
   }, [dragging]);
@@ -166,10 +189,8 @@ function Gallery() {
     setDragging(null);
   }, []);
 
-  const handleImageClick = (image) => {
-    if (!hasDragged.current) {
-      setSelectedImage(image);
-    }
+  const handleImageClick = () => {
+    // Do nothing on tap for now
   };
 
   return (
@@ -184,11 +205,6 @@ function Gallery() {
         const position = positions.find(p => p.id === image.id) || positions[index];
         const isDragging = dragging === image.id;
         
-        // Different depth factor per image for parallax layering
-        const depthFactor = 0.5 + (index % 5) * 0.25;
-        const offsetX = mouseOffset.x * depthFactor;
-        const offsetY = mouseOffset.y * depthFactor;
-        
         return (
           <article
             key={image.id}
@@ -199,8 +215,8 @@ function Gallery() {
               width: position.width,
               zIndex: position.zIndex,
               transform: isDragging 
-                ? 'rotate(0deg) scale(1.05)' 
-                : `translate(${offsetX}px, ${offsetY}px) rotate(${position.rotate}deg)`,
+                ? `rotate(${position.rotate}deg) scale(1.05)` 
+                : `rotate(${position.rotate}deg)`,
             }}
             onMouseDown={(e) => handleMouseDown(e, image.id)}
             onClick={() => handleImageClick(image)}
@@ -213,19 +229,10 @@ function Gallery() {
                 draggable="false"
               />
             </div>
-            <div className="scattered-label">
-              <span className="scattered-title">{image.title}</span>
-            </div>
           </article>
         );
       })}
 
-      {selectedImage && (
-        <ImageModal
-          image={selectedImage}
-          onClose={() => setSelectedImage(null)}
-        />
-      )}
     </section>
   );
 }

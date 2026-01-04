@@ -34,11 +34,6 @@
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  transition: opacity 0.3s ease;
-}
-
-.nav-link:hover {
-  opacity: 0.6;
 }
 
 .site-title {

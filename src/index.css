@@ -9,7 +9,7 @@
   --font-mono: 'JetBrains Mono', monospace;
 
   /* Colors - Warm terracotta & sage palette */
-  --bg-primary: #FAF8F5;
+  --bg-primary: #EFE5DB;
   --bg-header: rgba(250, 248, 245, 0.9);
   --card-bg: #FFFFFF;
   --input-bg: #F5F2EE;
@@ -71,7 +71,6 @@
 }
 
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -83,8 +82,9 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(circle at 20% 80%, var(--deco-color-2) 0%, transparent 25%),
-    radial-gradient(circle at 80% 20%, var(--deco-color-1) 0%, transparent 25%);
+    linear-gradient(rgba(0, 0, 0, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.018) 1px, transparent 1px);
+  background-size: 40px 40px;
   background-attachment: fixed;
   min-height: 100vh;
 }
