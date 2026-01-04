@@ -8,6 +8,7 @@ function ImageCard({ image, onClick, index }) {
     <article 
       className={`image-card ${isLoaded ? 'loaded' : ''}`}
       onClick={() => onClick(image)}
+      style={{ animationDelay: `${index * 0.1}s` }}
     >
       <div className="image-wrapper">
         <img

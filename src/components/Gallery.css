@@ -1,7 +1,7 @@
 .scattered-gallery {
   position: relative;
   width: 100%;
-  height: 400vh;
+  height: 350vh;
   padding: 80px 0;
   overflow: visible;
 }
@@ -46,31 +46,30 @@
   display: block;
 }
 
-
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .scattered-gallery {
-    height: 500vh;
+    height: 400vh;
   }
 }
 
 @media (max-width: 768px) {
   .scattered-gallery {
-    height: 600vh;
+    height: 500vh;
     padding: 60px 0;
   }
   
   .scattered-item {
-    min-width: 18% !important;
+    min-width: 25% !important;
   }
 }
 
 @media (max-width: 480px) {
   .scattered-gallery {
-    height: 700vh;
+    height: 650vh;
   }
   
   .scattered-item {
-    min-width: 25% !important;
+    min-width: 35% !important;
   }
 }
