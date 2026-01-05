@@ -1,0 +1,134 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Bagel+Fat+One&family=Uchen&family=Onest:wght@100..900&display=swap');
+
+/* CSS Custom Properties - Warm Earthy Aesthetic */
+:root {
+  /* Fonts */
+  --font-display: 'Bagel Fat One', system-ui, sans-serif;
+  --font-body: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-product: 'Uchen', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Colors - Warm terracotta & sage palette */
+  --bg-primary: #EFE5DB;
+  --bg-header: rgba(250, 248, 245, 0.9);
+  --card-bg: #FFFFFF;
+  --input-bg: #F5F2EE;
+  --skeleton-bg: #EDE9E3;
+  
+  --text-primary: #2C2825;
+  --text-secondary: #5C5650;
+  --text-muted: #9A938B;
+  
+  --border-color: #E8E3DC;
+  --shadow-color: rgba(44, 40, 37, 0.08);
+  
+  --accent-color: #C4775D;
+  --accent-bg: rgba(196, 119, 93, 0.1);
+  --accent-hover: #A85F47;
+  
+  --tag-bg: #F0EDE8;
+  
+  /* Decoration colors */
+  --deco-color-1: rgba(196, 119, 93, 0.15);
+  --deco-color-2: rgba(142, 157, 133, 0.15);
+  --deco-color-3: rgba(181, 166, 143, 0.15);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1A1816;
+    --bg-header: rgba(26, 24, 22, 0.9);
+    --card-bg: #242220;
+    --input-bg: #2A2725;
+    --skeleton-bg: #302D2A;
+    
+    --text-primary: #F5F2EE;
+    --text-secondary: #B8B2A8;
+    --text-muted: #7A756D;
+    
+    --border-color: #3A3632;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    
+    --accent-color: #D4886E;
+    --accent-bg: rgba(212, 136, 110, 0.15);
+    
+    --tag-bg: #2F2C28;
+    
+    --deco-color-1: rgba(212, 136, 110, 0.1);
+    --deco-color-2: rgba(142, 157, 133, 0.1);
+    --deco-color-3: rgba(181, 166, 143, 0.1);
+  }
+}
+
+/* Reset & Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.018) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Selection color */
+::selection {
+  background: var(--accent-color);
+  color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
