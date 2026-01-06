@@ -139,6 +139,21 @@
   letter-spacing: -0.01em;
 }
 
+/* Brand */
+.modal-brand {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Category badge */
+.modal-badge.category {
+  background: rgba(139, 115, 85, 0.15);
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
 /* Story section */
 .modal-story {
   margin: 0;
@@ -190,6 +205,12 @@
   font-weight: 600;
   color: var(--text-primary);
   font-size: 1.1rem;
+}
+
+.footer-price .price-converted {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 /* No details placeholder */

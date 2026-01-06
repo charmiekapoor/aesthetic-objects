@@ -8,16 +8,49 @@ import {
   Bag,
   Gamepad,
   PizzaSlice,
-  Sandals
+  Sandals,
+  Sofa
 } from 'iconoir-react';
 import './App.css';
 
 // Category icons mapping
 const categoryIcons = {
+  Live: Sofa,
   Work: Bag,
   Play: Gamepad,
   Eat: PizzaSlice,
   Wear: Sandals
+};
+
+// Country flag emojis
+const countryFlags = {
+  'All': '🌍',
+  'India': '🇮🇳',
+  'USA': '🇺🇸',
+  'Japan': '🇯🇵',
+  'France': '🇫🇷',
+  'Singapore': '🇸🇬',
+  'Sri Lanka': '🇱🇰',
+  'Czech Republic': '🇨🇿',
+};
+
+// Color hex values for swatches
+const colorHex = {
+  'All': 'linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3)',
+  'White': '#FFFFFF',
+  'Black': '#1a1a1a',
+  'Brown': '#8B4513',
+  'Blue': '#3B82F6',
+  'Green': '#22C55E',
+  'Red': '#EF4444',
+  'Yellow': '#FACC15',
+  'Orange': '#F97316',
+  'Gold': '#D4AF37',
+  'Beige': '#D4C4A8',
+  'Grey': '#9CA3AF',
+  'Pink': '#EC4899',
+  'Purple': '#A855F7',
+  'Multicolor': 'linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3)',
 };
 
 function App() {
@@ -28,10 +61,10 @@ function App() {
   const [country, setCountry] = useState('All');
   const [openDropdown, setOpenDropdown] = useState(null); // 'acquisition' | 'color' | 'country' | null
 
-  const categories = ['Work', 'Play', 'Eat', 'Wear'];
+  const categories = ['Live', 'Work', 'Play', 'Eat', 'Wear'];
   const acquisitionOptions = ['All', 'Bought', 'Gifted', 'Earned'];
-  const colorOptions = ['All', 'White', 'Black', 'Brown', 'Blue', 'Green', 'Red', 'Yellow', 'Multi'];
-  const countryOptions = ['All', 'India', 'Japan', 'USA', 'UK', 'Italy', 'France', 'Germany', 'China'];
+  const colorOptions = ['All', 'White', 'Black', 'Brown', 'Blue', 'Green', 'Red', 'Yellow', 'Orange', 'Gold', 'Beige', 'Grey', 'Pink', 'Purple', 'Multicolor'];
+  const countryOptions = ['All', 'India', 'USA', 'Japan', 'France', 'Singapore', 'Sri Lanka', 'Czech Republic'];
 
   const filterRef = useRef(null);
 
@@ -57,6 +90,17 @@ function App() {
         ? prev.filter(c => c !== cat)  // Remove if already selected
         : [...prev, cat]                // Add if not selected
     );
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = activeCategories.length > 0 || acquisition !== 'All' || color !== 'All' || country !== 'All';
+
+  // Clear all filters
+  const clearFilters = () => {
+    setActiveCategories([]);
+    setAcquisition('All');
+    setColor('All');
+    setCountry('All');
   };
 
   // Theme class based on view mode
@@ -124,7 +168,15 @@ function App() {
               className="filter-dropdown"
               onClick={() => toggleDropdown('color')}
             >
-              <span>{color === 'All' ? 'Color' : color}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {color !== 'All' && (
+                  <span 
+                    className="color-dot" 
+                    style={{ background: colorHex[color] }}
+                  />
+                )}
+                {color === 'All' ? 'Color' : color}
+              </span>
               <NavArrowDown width={16} height={16} strokeWidth={1.8} />
             </button>
             {openDropdown === 'color' && (
@@ -138,6 +190,12 @@ function App() {
                       setOpenDropdown(null);
                     }}
                   >
+                    {option !== 'All' && (
+                      <span 
+                        className="color-dot" 
+                        style={{ background: colorHex[option] }}
+                      />
+                    )}
                     {option}
                   </button>
                 ))}
@@ -150,7 +208,7 @@ function App() {
               className="filter-dropdown"
               onClick={() => toggleDropdown('country')}
             >
-              <span>{country === 'All' ? 'Country' : country}</span>
+              <span>{country === 'All' ? 'Country' : `${countryFlags[country]}  ${country}`}</span>
               <NavArrowDown width={16} height={16} strokeWidth={1.8} />
             </button>
             {openDropdown === 'country' && (
@@ -164,12 +222,18 @@ function App() {
                       setOpenDropdown(null);
                     }}
                   >
-                    {option}
+                    {option !== 'All' && `${countryFlags[option]}  `}{option}
                   </button>
                 ))}
               </div>
             )}
           </div>
+
+          {hasActiveFilters && (
+            <button className="clear-filters" onClick={clearFilters}>
+              Clear filters
+            </button>
+          )}
         </div>
 
         <div className="view-toggles">
@@ -198,7 +262,13 @@ function App() {
       </div>
 
       <main>
-        <Gallery viewMode={viewMode} />
+        <Gallery 
+          viewMode={viewMode} 
+          activeCategories={activeCategories}
+          acquisition={acquisition}
+          color={color}
+          country={country}
+        />
       </main>
     </div>
   );

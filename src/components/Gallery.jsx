@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity } from 'framer-motion';
 import { galleryImages } from '../data/images';
 import ImageModal from './ImageModal';
 import './Gallery.css';
@@ -7,62 +7,79 @@ import './Gallery.css';
 // Configuration
 const MAX_IMAGES = 64;
 
-// Format price as "<currency symbol><amount>"
-const formatPrice = (price) => {
+// Conversion rates to INR (approximate)
+const conversionRates = {
+  USD: 84,
+  EUR: 91,
+  GBP: 106,
+  JPY: 0.56,
+  LKR: 0.26,
+};
+
+// Format number with commas for Indian numbering
+const formatINR = (num) => {
+  return num.toLocaleString('en-IN');
+};
+
+// Format price as "<currency symbol><amount>" with INR conversion
+const formatPrice = (price, showConversion = true) => {
   if (!price) return '';
   
   // Handle different formats
   const priceStr = price.toString().trim();
   
-  // Rs.3699 or Rs 3699 → ₹3699
+  // Rs.3699 or Rs 3699 → ₹3699 (already in INR)
   if (priceStr.toLowerCase().startsWith('rs')) {
-    const amount = priceStr.replace(/rs\.?\s*/i, '').trim();
+    const amount = priceStr.replace(/rs\.?\s*/i, '').replace(/,/g, '').trim();
     return `₹${amount}`;
   }
   
-  // $16 → $16
+  // $16 → $16 (₹1,344)
   if (priceStr.startsWith('$')) {
-    const amount = priceStr.replace('$', '').trim();
-    return `$${amount}`;
+    const amount = parseFloat(priceStr.replace('$', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.USD);
+    return showConversion ? { main: `$${amount}`, converted: `₹${formatINR(inrAmount)}` } : `$${amount}`;
   }
   
-  // €72 → €72
+  // €72 → €72 (₹6,552)
   if (priceStr.startsWith('€')) {
-    const amount = priceStr.replace('€', '').trim();
-    return `€${amount}`;
+    const amount = parseFloat(priceStr.replace('€', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.EUR);
+    return showConversion ? { main: `€${amount}`, converted: `₹${formatINR(inrAmount)}` } : `€${amount}`;
   }
   
-  // £50 → £50
+  // £50 → £50 (₹5,300)
   if (priceStr.startsWith('£')) {
-    const amount = priceStr.replace('£', '').trim();
-    return `£${amount}`;
+    const amount = parseFloat(priceStr.replace('£', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.GBP);
+    return showConversion ? { main: `£${amount}`, converted: `₹${formatINR(inrAmount)}` } : `£${amount}`;
   }
   
-  // 2000 yen → ¥2000
+  // 2000 yen → ¥2000 (₹1,120)
   if (priceStr.toLowerCase().includes('yen')) {
-    const amount = priceStr.toLowerCase().replace('yen', '').trim();
-    return `¥${amount}`;
+    const amount = parseFloat(priceStr.toLowerCase().replace('yen', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.JPY);
+    return showConversion ? { main: `¥${amount}`, converted: `₹${formatINR(inrAmount)}` } : `¥${amount}`;
+  }
+  
+  // 2000 LKR → LKR 2000 (₹520)
+  if (priceStr.toLowerCase().includes('lkr')) {
+    const amount = parseFloat(priceStr.toLowerCase().replace('lkr', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.LKR);
+    return showConversion ? { main: `LKR ${amount}`, converted: `₹${formatINR(inrAmount)}` } : `LKR ${amount}`;
   }
   
   return priceStr;
 };
 
 // Grid Item Component
-function GridItem({ image, index, onClick }) {
+function GridItem({ image, onClick }) {
+  const priceData = image.price ? formatPrice(image.price) : null;
+  
   return (
-    <motion.article
+    <article
       className="grid-item"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ 
-        duration: 0.4,
-        delay: index * 0.02,
-        ease: [0.25, 0.1, 0.25, 1]
-      }}
-      whileHover={{ y: -4 }}
       onClick={() => onClick(image)}
-      layout
     >
       <div className="grid-image-wrapper">
         <img 
@@ -75,26 +92,28 @@ function GridItem({ image, index, onClick }) {
       {image.name && (
         <div className="grid-item-info">
           <span className="grid-item-name">{image.name}</span>
-          {image.price && <span className="grid-item-price">{formatPrice(image.price)}</span>}
+          {priceData && (
+            <span className="grid-item-price">
+              {typeof priceData === 'object' ? (
+                <>
+                  {priceData.main} <span className="price-converted">({priceData.converted})</span>
+                </>
+              ) : priceData}
+            </span>
+          )}
         </div>
       )}
-    </motion.article>
+    </article>
   );
 }
 
 // List Item Component - Minimal row-based layout
-function ListItem({ image, index, onClick, isLast }) {
+function ListItem({ image, onClick, isLast }) {
+  const priceData = image.price ? formatPrice(image.price) : null;
+  
   return (
-    <motion.article
+    <article
       className={`list-item ${isLast ? 'last' : ''}`}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      transition={{ 
-        duration: 0.3,
-        delay: index * 0.015,
-        ease: [0.25, 0.1, 0.25, 1]
-      }}
       onClick={() => onClick(image)}
     >
       <div className="list-item-left">
@@ -108,8 +127,16 @@ function ListItem({ image, index, onClick, isLast }) {
         </div>
         <span className="list-item-name">{image.name || `Item ${image.id}`}</span>
       </div>
-      <span className="list-item-price">{formatPrice(image.price) || '—'}</span>
-    </motion.article>
+      <span className="list-item-price">
+        {priceData ? (
+          typeof priceData === 'object' && priceData.converted ? (
+            <>
+              <span className="price-converted">{priceData.converted}</span> {priceData.main}
+            </>
+          ) : (typeof priceData === 'object' ? priceData.main : priceData)
+        ) : '—'}
+      </span>
+    </article>
   );
 }
 
@@ -165,8 +192,7 @@ const generatePositions = (count) => {
       width: `${widthNum}%`,
       widthNum,
       rotate,
-      zIndex: Math.floor(seededRandom() * 3) + 1,
-      id: galleryImages[i].id
+      zIndex: Math.floor(seededRandom() * 3) + 1
     });
   }
   
@@ -274,9 +300,36 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onClick }
   );
 }
 
-function Gallery({ viewMode = 'grid' }) {
-  // Limit to MAX_IMAGES (64 images across 4 folds)
-  const displayedImages = galleryImages.slice(0, MAX_IMAGES);
+function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All', color = 'All', country = 'All' }) {
+  // Filter images based on selected filters
+  const filteredImages = galleryImages.slice(0, MAX_IMAGES).filter(image => {
+    // Category filter (multi-select, show all if none selected)
+    if (activeCategories.length > 0 && !activeCategories.includes(image.category)) {
+      return false;
+    }
+    
+    // Acquisition filter (Source: Bought/Gifted/Earned)
+    if (acquisition !== 'All' && image.howAcquired?.toLowerCase() !== acquisition.toLowerCase()) {
+      return false;
+    }
+    
+    // Color filter - check if any color in the image's color string matches
+    if (color !== 'All') {
+      const imageColors = image.color?.toLowerCase() || '';
+      if (!imageColors.includes(color.toLowerCase())) {
+        return false;
+      }
+    }
+    
+    // Country filter
+    if (country !== 'All' && image.from !== country) {
+      return false;
+    }
+    
+    return true;
+  });
+
+  const displayedImages = filteredImages;
   
   const [positions, setPositions] = useState(() => {
     const generated = generatePositions(displayedImages.length);
@@ -287,6 +340,15 @@ function Gallery({ viewMode = 'grid' }) {
   });
 
   const [selectedImage, setSelectedImage] = useState(null);
+
+  // Regenerate positions when filters change or window resizes
+  useEffect(() => {
+    const generated = generatePositions(displayedImages.length);
+    setPositions(displayedImages.map((img, index) => ({
+      ...generated[index],
+      id: img.id,
+    })));
+  }, [displayedImages.length, activeCategories, acquisition, color, country]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -379,16 +441,13 @@ function Gallery({ viewMode = 'grid' }) {
     return (
       <>
         <section className="grid-gallery">
-          <AnimatePresence mode="popLayout">
-            {displayedImages.map((image, index) => (
-              <GridItem
-                key={image.id}
-                image={image}
-                index={index}
-                onClick={handleImageClick}
-              />
-            ))}
-          </AnimatePresence>
+          {displayedImages.map((image) => (
+            <GridItem
+              key={image.id}
+              image={image}
+              onClick={handleImageClick}
+            />
+          ))}
         </section>
 
         {selectedImage && (
@@ -406,17 +465,14 @@ function Gallery({ viewMode = 'grid' }) {
     return (
       <>
         <section className="list-gallery">
-          <AnimatePresence mode="popLayout">
-            {displayedImages.map((image, index) => (
-              <ListItem
-                key={image.id}
-                image={image}
-                index={index}
-                onClick={handleImageClick}
-                isLast={index === displayedImages.length - 1}
-              />
-            ))}
-          </AnimatePresence>
+          {displayedImages.map((image, index) => (
+            <ListItem
+              key={image.id}
+              image={image}
+              onClick={handleImageClick}
+              isLast={index === displayedImages.length - 1}
+            />
+          ))}
         </section>
 
         {selectedImage && (

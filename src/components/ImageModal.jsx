@@ -8,15 +8,71 @@ const countryFlags = {
   'USA': '🇺🇸',
   'Japan': '🇯🇵',
   'France': '🇫🇷',
+  'Singapore': '🇸🇬',
+  'Sri Lanka': '🇱🇰',
+  'Czech Republic': '🇨🇿',
 };
 
-// Format price with proper currency icons
+// Conversion rates to INR (approximate)
+const conversionRates = {
+  USD: 84,
+  EUR: 91,
+  GBP: 106,
+  JPY: 0.56,
+  LKR: 0.26,
+};
+
+// Format number with commas for Indian numbering
+const formatINR = (num) => {
+  return num.toLocaleString('en-IN');
+};
+
+// Format price with proper currency icons and INR conversion
 const formatPrice = (price) => {
-  if (!price) return '';
+  if (!price) return null;
   let p = price.trim();
-  if (p.toLowerCase().startsWith('rs')) return p.replace(/rs\.?\s?/i, '₹');
-  if (p.toLowerCase().includes('yen')) return '¥' + p.replace(/yen/i, '').trim();
-  return p;
+  
+  // Already in INR
+  if (p.toLowerCase().startsWith('rs')) {
+    return { main: p.replace(/rs\.?\s?/i, '₹'), converted: null };
+  }
+  
+  // USD
+  if (p.startsWith('$')) {
+    const amount = parseFloat(p.replace('$', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.USD);
+    return { main: `$${amount}`, converted: `₹${formatINR(inrAmount)}` };
+  }
+  
+  // EUR
+  if (p.startsWith('€')) {
+    const amount = parseFloat(p.replace('€', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.EUR);
+    return { main: `€${amount}`, converted: `₹${formatINR(inrAmount)}` };
+  }
+  
+  // GBP
+  if (p.startsWith('£')) {
+    const amount = parseFloat(p.replace('£', '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.GBP);
+    return { main: `£${amount}`, converted: `₹${formatINR(inrAmount)}` };
+  }
+  
+  // JPY
+  if (p.toLowerCase().includes('yen')) {
+    const amount = parseFloat(p.replace(/yen/i, '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.JPY);
+    return { main: `¥${amount}`, converted: `₹${formatINR(inrAmount)}` };
+  }
+  
+  // LKR
+  if (p.toLowerCase().includes('lkr')) {
+    const amount = parseFloat(p.replace(/lkr/i, '').replace(/,/g, '').trim());
+    const inrAmount = Math.round(amount * conversionRates.LKR);
+    return { main: `LKR ${amount}`, converted: `₹${formatINR(inrAmount)}` };
+  }
+  
+  return { main: p, converted: null };
 };
 
 function ImageModal({ image, onClose }) {
@@ -79,11 +135,16 @@ function ImageModal({ image, onClose }) {
             {/* Title */}
             <h2 className="modal-title">{image.name || `Object #${image.id}`}</h2>
 
-            {/* Two pills with emojis */}
+            {/* Brand */}
+            {image.brand && (
+              <span className="modal-brand">{image.brand}</span>
+            )}
+
+            {/* Pills with emojis */}
             <div className="modal-header">
               {image.howAcquired && (
                 <span className={`modal-badge ${image.howAcquired.toLowerCase()}`}>
-                  {image.howAcquired === 'Gifted' ? '🎁' : '🛒'} {image.howAcquired}
+                  {image.howAcquired === 'Gifted' ? '🎁' : image.howAcquired === 'Earned' ? '🏆' : '🛒'} {image.howAcquired}
                 </span>
               )}
               {image.from && (
@@ -126,9 +187,17 @@ function ImageModal({ image, onClose }) {
                   <div /> 
                 )}
                 
-                {image.price && (
-                  <span className="footer-price">{formatPrice(image.price)}</span>
-                )}
+                {image.price && (() => {
+                  const priceData = formatPrice(image.price);
+                  return priceData ? (
+                    <span className="footer-price">
+                      {priceData.main}
+                      {priceData.converted && (
+                        <span className="price-converted"> ({priceData.converted})</span>
+                      )}
+                    </span>
+                  ) : null;
+                })()}
               </div>
             </div>
           </div>

@@ -202,7 +202,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
+  padding: 8px 16px;
   border: 1px solid var(--border-color);
   border-radius: 100px;
   cursor: pointer;
@@ -247,12 +247,15 @@
   border-radius: 8px;
   box-shadow: 0 4px 16px var(--shadow-color);
   min-width: 120px;
+  width: max-content;
   z-index: 200;
   overflow: hidden;
 }
 
 .dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   padding: 10px 14px;
   border: none;
@@ -264,6 +267,7 @@
   cursor: pointer;
   transition: all 0.15s;
   font-family: var(--font-body);
+  white-space: nowrap;
 }
 
 .dropdown-item:hover {
@@ -275,6 +279,35 @@
   background: var(--accent-bg);
   color: var(--accent-color);
   font-weight: 500;
+}
+
+/* Color dot swatch */
+.color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Clear filters button */
+.clear-filters {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.clear-filters:hover {
+  color: var(--text-primary);
+  background: var(--input-bg);
 }
 
 /* Theme-specific dropdown menus */
@@ -399,7 +432,7 @@ main {
   .filter-pill,
   .filter-dropdown {
     white-space: nowrap;
-    padding: 4px 12px;
+    padding: 6px 12px;
     font-size: 12px;
     flex-shrink: 0;
   }
