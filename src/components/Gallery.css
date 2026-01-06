@@ -70,6 +70,7 @@
   border-radius: 2px;
   border: none;
   box-shadow: 0 1px 3px var(--shadow-color);
+  background: #FFFFFF;
 }
 
 .theme-grid .grid-item:hover {
@@ -78,6 +79,11 @@
 
 .theme-grid .grid-image-wrapper {
   border-radius: 0;
+  background: #FFFFFF;
+}
+
+.theme-grid .grid-item-info {
+  background: #FFFFFF;
 }
 
 .theme-grid .grid-item-name {
