@@ -75,24 +75,25 @@ const formatPrice = (price) => {
   return { main: p, converted: null };
 };
 
-function ImageModal({ image, onClose }) {
+function ImageModal({ image, onClose, onNavigate }) {
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft' && onNavigate) onNavigate('prev');
+      if (e.key === 'ArrowRight' && onNavigate) onNavigate('next');
     };
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleKeyDown);
     document.body.style.overflow = 'hidden';
     
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [onClose]);
+  }, [onClose, onNavigate]);
 
   if (!image) return null;
 
   const hasDetails = image.name || image.story || image.price;
-  const flag = countryFlags[image.from] || '';
 
   return (
     <AnimatePresence>

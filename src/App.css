@@ -3,6 +3,59 @@
   background: var(--bg-primary);
 }
 
+/* Paper texture for scattered view - soft museum paper/sketchbook texture */
+.theme-scattered .app {
+  background: var(--bg-primary);
+  position: relative;
+  background-image: 
+    /* Strong visible paper grain */
+    repeating-linear-gradient(
+      0deg,
+      rgba(61, 53, 48, 0.08) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(61, 53, 48, 0.06) 3px,
+      transparent 4px,
+      rgba(61, 53, 48, 0.04) 5px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(61, 53, 48, 0.08) 0px,
+      transparent 1px,
+      transparent 3px,
+      rgba(61, 53, 48, 0.06) 4px,
+      transparent 6px,
+      rgba(61, 53, 48, 0.04) 7px,
+      transparent 11px
+    ),
+    /* Base color */
+    var(--bg-primary);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+}
+
+/* Additional noise texture overlay */
+.theme-scattered .app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg width='150' height='150' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.15 0 0 0 0 0.15 0 0 0 0 0.15 0 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' fill='%23FDF8F3'/%3E%3C/svg%3E");
+  background-size: 150px 150px;
+  mix-blend-mode: multiply;
+}
+
+.theme-scattered .app > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* Header */
 .header {
   display: flex;
@@ -21,13 +74,14 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
-.header-left, .header-right {
+.header-right {
   flex: 1;
 }
 
 .header-left {
   display: flex;
   align-items: center;
+  flex: 0 1 auto;
 }
 
 .nav-link {
@@ -45,6 +99,10 @@
 
 .about-link {
   font-weight: 400;
+}
+
+.theme-scattered .about-link {
+  font-family: 'Fuzzy Bubbles', cursive;
 }
 
 .header-right {
@@ -86,10 +144,7 @@
   color: var(--text-primary);
   margin: 0;
   white-space: nowrap;
-  position: absolute;
-  left: 50%;
-  top: calc(50% + 12px);
-  transform: translate(-50%, -50%);
+  flex: 1;
   line-height: 1;
 }
 
@@ -186,6 +241,7 @@
   border-radius: 6px;
   font-weight: 400;
   font-style: italic;
+  font-family: 'Fuzzy Bubbles', cursive;
 }
 
 .theme-scattered .filter-pill.active {
@@ -236,6 +292,7 @@
 .theme-scattered .filter-dropdown {
   border-radius: 6px;
   font-style: italic;
+  font-family: 'Fuzzy Bubbles', cursive;
 }
 
 .dropdown-menu {
@@ -328,6 +385,11 @@
 
 .theme-scattered .dropdown-item {
   font-style: italic;
+  font-family: 'Fuzzy Bubbles', cursive;
+}
+
+.theme-scattered .clear-filters {
+  font-family: 'Fuzzy Bubbles', cursive;
 }
 
 /* View Toggles */
@@ -401,8 +463,12 @@ main {
     box-sizing: border-box;
   }
   
-  .header-left, .header-right {
+  .header-right {
     flex: 1;
+  }
+  
+  .header-left {
+    flex: 0 1 auto;
   }
 
   .theme-btn {
@@ -451,8 +517,8 @@ main {
     font-size: 18pt;
     position: static;
     transform: none;
-    flex: 2;
-    text-align: center;
+    flex: 1;
+    text-align: left;
   }
 
   main {

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity } from 'framer-motion';
 import { galleryImages } from '../data/images';
 import ImageModal from './ImageModal';
@@ -70,6 +70,14 @@ const formatPrice = (price, showConversion = true) => {
   }
   
   return priceStr;
+};
+
+const FALLBACK_POSITION = {
+  top: 50,
+  left: 48,
+  width: '32%',
+  rotate: 0,
+  zIndex: 1,
 };
 
 // Grid Item Component
@@ -199,7 +207,7 @@ const generatePositions = (count) => {
   return positions;
 };
 
-function ParallaxItem({ image, position, index, dragging, onMouseDown, onClick }) {
+function ParallaxItem({ image, position, index, dragging, onMouseDown, onTouchStart, onClick }) {
   const isDragging = dragging === image.id;
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
@@ -273,6 +281,7 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onClick }
         willChange: 'filter, transform'
       }}
       onMouseDown={(e) => onMouseDown(e, image.id)}
+      onTouchStart={(e) => onTouchStart && onTouchStart(e, image.id)}
       onClick={() => onClick(image)}
     >
       <motion.div 
@@ -301,35 +310,32 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onClick }
 }
 
 function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All', color = 'All', country = 'All' }) {
-  // Filter images based on selected filters
-  const filteredImages = galleryImages.slice(0, MAX_IMAGES).filter(image => {
-    // Category filter (multi-select, show all if none selected)
-    if (activeCategories.length > 0 && !activeCategories.includes(image.category)) {
-      return false;
-    }
-    
-    // Acquisition filter (Source: Bought/Gifted/Earned)
-    if (acquisition !== 'All' && image.howAcquired?.toLowerCase() !== acquisition.toLowerCase()) {
-      return false;
-    }
-    
-    // Color filter - check if any color in the image's color string matches
-    if (color !== 'All') {
-      const imageColors = image.color?.toLowerCase() || '';
-      if (!imageColors.includes(color.toLowerCase())) {
+  const baseGalleryImages = useMemo(() => galleryImages.slice(0, MAX_IMAGES), []);
+
+  const displayedImages = useMemo(() => {
+    return baseGalleryImages.filter(image => {
+      if (activeCategories.length > 0 && !activeCategories.includes(image.category)) {
         return false;
       }
-    }
-    
-    // Country filter
-    if (country !== 'All' && image.from !== country) {
-      return false;
-    }
-    
-    return true;
-  });
 
-  const displayedImages = filteredImages;
+      if (acquisition !== 'All' && image.howAcquired?.toLowerCase() !== acquisition.toLowerCase()) {
+        return false;
+      }
+
+      if (color !== 'All') {
+        const imageColors = image.color?.toLowerCase() || '';
+        if (!imageColors.includes(color.toLowerCase())) {
+          return false;
+        }
+      }
+
+      if (country !== 'All' && image.from !== country) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [baseGalleryImages, activeCategories, acquisition, color, country]);
   
   const [positions, setPositions] = useState(() => {
     const generated = generatePositions(displayedImages.length);
@@ -339,29 +345,36 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
     }));
   });
 
-  const [selectedImage, setSelectedImage] = useState(null);
-
-  // Regenerate positions when filters change or window resizes
-  useEffect(() => {
+  const regeneratePositions = useCallback(() => {
     const generated = generatePositions(displayedImages.length);
     setPositions(displayedImages.map((img, index) => ({
       ...generated[index],
       id: img.id,
     })));
-  }, [displayedImages.length, activeCategories, acquisition, color, country]);
+  }, [displayedImages]);
 
   useEffect(() => {
-    const handleResize = () => {
-      const generated = generatePositions(displayedImages.length);
-      setPositions(displayedImages.map((img, index) => ({
-        ...generated[index],
-        id: img.id,
-      })));
-    };
+    regeneratePositions();
+  }, [regeneratePositions]);
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [displayedImages.length]);
+  useEffect(() => {
+    window.addEventListener('resize', regeneratePositions);
+    return () => window.removeEventListener('resize', regeneratePositions);
+  }, [regeneratePositions]);
+
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const fallbackPositions = useMemo(() => generatePositions(displayedImages.length), [displayedImages.length]);
+
+  const positionsById = useMemo(() => {
+    const map = new Map();
+    positions.forEach(pos => {
+      if (pos?.id != null) {
+        map.set(pos.id, pos);
+      }
+    });
+    return map;
+  }, [positions]);
 
   const [dragging, setDragging] = useState(null);
   const [maxZIndex, setMaxZIndex] = useState(100);
@@ -371,7 +384,10 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
   const hasDragged = useRef(false);
 
   const handleMouseDown = useCallback((e, imageId) => {
-    e.preventDefault();
+    // Only prevent default for left-click to avoid interfering with touch events
+    if (e.button === 0) {
+      e.preventDefault();
+    }
     e.stopPropagation();
     hasDragged.current = false;
     
@@ -420,6 +436,58 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
     ));
   }, [dragging]);
 
+  // Touch event handlers for mobile
+  const handleTouchStart = useCallback((e, imageId) => {
+    e.stopPropagation();
+    hasDragged.current = false;
+    
+    const touch = e.touches[0];
+    const pos = positions.find(p => p.id === imageId);
+    const container = containerRef.current;
+    if (!container || !pos) return;
+    
+    dragRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      startLeft: pos.left,
+      startTop: pos.top,
+    };
+    
+    setMaxZIndex(prev => prev + 1);
+    setPositions(prev => prev.map(p => 
+      p.id === imageId ? { ...p, zIndex: maxZIndex + 1 } : p
+    ));
+    
+    setDragging(imageId);
+  }, [positions, maxZIndex]);
+
+  const handleTouchMove = useCallback((e) => {
+    if (!dragging || !containerRef.current) return;
+
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    const touch = e.touches[0];
+    
+    const deltaX = touch.clientX - dragRef.current.startX;
+    const deltaY = touch.clientY - dragRef.current.startY;
+    
+    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+      hasDragged.current = true;
+    }
+    
+    const deltaLeftPercent = (deltaX / rect.width) * 100;
+    const deltaTopPercent = (deltaY / rect.height) * 100;
+    
+    const newLeft = dragRef.current.startLeft + deltaLeftPercent;
+    const newTop = dragRef.current.startTop + deltaTopPercent;
+
+    setPositions(prev => prev.map(p => 
+      p.id === dragging 
+        ? { ...p, left: newLeft, top: newTop }
+        : p
+    ));
+  }, [dragging]);
+
   const handleMouseUp = useCallback(() => {
     setDragging(null);
   }, []);
@@ -435,6 +503,20 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
   const handleCloseModal = useCallback(() => {
     setSelectedImage(null);
   }, []);
+
+  const handleNavigate = useCallback((direction) => {
+    if (!selectedImage) return;
+    const currentIndex = displayedImages.findIndex(img => img.id === selectedImage.id);
+    if (currentIndex === -1) return;
+    
+    let newIndex;
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : displayedImages.length - 1;
+    } else {
+      newIndex = currentIndex < displayedImages.length - 1 ? currentIndex + 1 : 0;
+    }
+    setSelectedImage(displayedImages[newIndex]);
+  }, [selectedImage, displayedImages]);
 
   // Grid View
   if (viewMode === 'grid') {
@@ -453,7 +535,9 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
         {selectedImage && (
           <ImageModal 
             image={selectedImage} 
-            onClose={handleCloseModal} 
+            onClose={handleCloseModal}
+            images={displayedImages}
+            onNavigate={handleNavigate}
           />
         )}
       </>
@@ -478,7 +562,9 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
         {selectedImage && (
           <ImageModal 
             image={selectedImage} 
-            onClose={handleCloseModal} 
+            onClose={handleCloseModal}
+            images={displayedImages}
+            onNavigate={handleNavigate}
           />
         )}
       </>
@@ -494,9 +580,12 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleMouseUp}
       >
         {displayedImages.map((image, index) => {
-          const position = positions.find(p => p.id === image.id) || positions[index];
+          const fallback = fallbackPositions[index] || fallbackPositions[0] || FALLBACK_POSITION;
+          const position = positionsById.get(image.id) ?? fallback;
           
           return (
             <ParallaxItem
@@ -506,6 +595,7 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
               index={index}
               dragging={dragging}
               onMouseDown={handleMouseDown}
+              onTouchStart={handleTouchStart}
               onClick={handleImageClick}
             />
           );
@@ -515,7 +605,9 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
       {selectedImage && (
         <ImageModal 
           image={selectedImage} 
-          onClose={handleCloseModal} 
+          onClose={handleCloseModal}
+          images={displayedImages}
+          onNavigate={handleNavigate}
         />
       )}
     </>
