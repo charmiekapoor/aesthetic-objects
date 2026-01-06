@@ -110,7 +110,7 @@ function App() {
     <div className={`app ${themeClass}`}>
       <header className="header">
         <div className="header-left">
-          <h1 className="site-title">Nicely designed things</h1>
+          <h1 className="site-title">Nicely Designed Things</h1>
         </div>
         
         <div className="header-right">

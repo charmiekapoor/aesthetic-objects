@@ -138,7 +138,7 @@
 
 .site-title {
   font-family: var(--font-display);
-  font-size: 28pt;
+  font-size: 44px;
   font-weight: 600;
   letter-spacing: -0.03em;
   color: var(--text-primary);
@@ -153,7 +153,6 @@
   font-weight: 700;
   letter-spacing: -0.04em;
   text-transform: uppercase;
-  font-size: 24pt;
 }
 
 .theme-scattered .site-title {
@@ -198,6 +197,7 @@
   transition: all 0.2s;
   background: transparent;
   font-family: var(--font-body);
+  justify-content: center;
 }
 
 .filter-pill svg {
@@ -268,6 +268,7 @@
   transition: all 0.2s;
   background: transparent;
   font-family: var(--font-body);
+  justify-content: center;
 }
 
 .filter-dropdown:hover {
@@ -305,7 +306,7 @@
   box-shadow: 0 4px 16px var(--shadow-color);
   min-width: 120px;
   width: max-content;
-  z-index: 200;
+  z-index: 1200;
   overflow: hidden;
 }
 
@@ -450,12 +451,6 @@ main {
   padding-top: 154px; /* Space for fixed header and filter bar */
 }
 
-@media (max-width: 1024px) {
-  .site-title {
-    font-size: 24pt;
-  }
-}
-
 @media (max-width: 768px) {
   .header {
     padding: 12px 20px 0 20px;
@@ -514,7 +509,6 @@ main {
   }
   
   .site-title {
-    font-size: 18pt;
     position: static;
     transform: none;
     flex: 1;

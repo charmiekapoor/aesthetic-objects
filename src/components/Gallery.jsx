@@ -16,9 +16,14 @@ const conversionRates = {
   LKR: 0.26,
 };
 
+const SCATTER_VIEWPORTS = 3;
 // Format number with commas for Indian numbering
 const formatINR = (num) => {
-  return num.toLocaleString('en-IN');
+  return Number(num).toLocaleString('en-IN');
+};
+
+const formatNumberWithCommas = (value, locale = 'en-US', options = {}) => {
+  return Number(value).toLocaleString(locale, options);
 };
 
 // Format price as "<currency symbol><amount>" with INR conversion
@@ -28,45 +33,61 @@ const formatPrice = (price, showConversion = true) => {
   // Handle different formats
   const priceStr = price.toString().trim();
   
-  // Rs.3699 or Rs 3699 → ₹3699 (already in INR)
+  // Rs.3699 or Rs 3699 → ₹3,699
   if (priceStr.toLowerCase().startsWith('rs')) {
     const amount = priceStr.replace(/rs\.?\s*/i, '').replace(/,/g, '').trim();
-    return `₹${amount}`;
+    const formatted = formatINR(amount);
+    return `₹${formatted}`;
   }
   
   // $16 → $16 (₹1,344)
   if (priceStr.startsWith('$')) {
     const amount = parseFloat(priceStr.replace('$', '').replace(/,/g, '').trim());
+    const formattedMain = `$${formatNumberWithCommas(amount, 'en-US', { maximumFractionDigits: 2 })}`;
     const inrAmount = Math.round(amount * conversionRates.USD);
-    return showConversion ? { main: `$${amount}`, converted: `₹${formatINR(inrAmount)}` } : `$${amount}`;
+    return showConversion
+      ? { main: formattedMain, converted: `₹${formatINR(inrAmount)}` }
+      : formattedMain;
   }
   
   // €72 → €72 (₹6,552)
   if (priceStr.startsWith('€')) {
     const amount = parseFloat(priceStr.replace('€', '').replace(/,/g, '').trim());
+    const formattedMain = `€${formatNumberWithCommas(amount, 'de-DE', { maximumFractionDigits: 2 })}`;
     const inrAmount = Math.round(amount * conversionRates.EUR);
-    return showConversion ? { main: `€${amount}`, converted: `₹${formatINR(inrAmount)}` } : `€${amount}`;
+    return showConversion
+      ? { main: formattedMain, converted: `₹${formatINR(inrAmount)}` }
+      : formattedMain;
   }
   
   // £50 → £50 (₹5,300)
   if (priceStr.startsWith('£')) {
     const amount = parseFloat(priceStr.replace('£', '').replace(/,/g, '').trim());
+    const formattedMain = `£${formatNumberWithCommas(amount, 'en-GB', { maximumFractionDigits: 2 })}`;
     const inrAmount = Math.round(amount * conversionRates.GBP);
-    return showConversion ? { main: `£${amount}`, converted: `₹${formatINR(inrAmount)}` } : `£${amount}`;
+    return showConversion
+      ? { main: formattedMain, converted: `₹${formatINR(inrAmount)}` }
+      : formattedMain;
   }
   
   // 2000 yen → ¥2000 (₹1,120)
   if (priceStr.toLowerCase().includes('yen')) {
     const amount = parseFloat(priceStr.toLowerCase().replace('yen', '').replace(/,/g, '').trim());
+    const formattedMain = `¥${formatNumberWithCommas(amount, 'ja-JP', { maximumFractionDigits: 0 })}`;
     const inrAmount = Math.round(amount * conversionRates.JPY);
-    return showConversion ? { main: `¥${amount}`, converted: `₹${formatINR(inrAmount)}` } : `¥${amount}`;
+    return showConversion
+      ? { main: formattedMain, converted: `₹${formatINR(inrAmount)}` }
+      : formattedMain;
   }
   
   // 2000 LKR → LKR 2000 (₹520)
   if (priceStr.toLowerCase().includes('lkr')) {
     const amount = parseFloat(priceStr.toLowerCase().replace('lkr', '').replace(/,/g, '').trim());
+    const formattedMain = `LKR ${formatNumberWithCommas(amount, 'en-IN', { maximumFractionDigits: 0 })}`;
     const inrAmount = Math.round(amount * conversionRates.LKR);
-    return showConversion ? { main: `LKR ${amount}`, converted: `₹${formatINR(inrAmount)}` } : `LKR ${amount}`;
+    return showConversion
+      ? { main: formattedMain, converted: `₹${formatINR(inrAmount)}` }
+      : formattedMain;
   }
   
   return priceStr;
@@ -104,9 +125,12 @@ function GridItem({ image, onClick }) {
             <span className="grid-item-price">
               {typeof priceData === 'object' ? (
                 <>
-                  {priceData.main} <span className="price-converted">({priceData.converted})</span>
+                  <span className="price-main">{priceData.main}</span>{' '}
+                  <span className="price-converted">({priceData.converted})</span>
                 </>
-              ) : priceData}
+              ) : (
+                <span className="price-main">{priceData}</span>
+              )}
             </span>
           )}
         </div>
@@ -139,9 +163,12 @@ function ListItem({ image, onClick, isLast }) {
         {priceData ? (
           typeof priceData === 'object' && priceData.converted ? (
             <>
-              <span className="price-converted">{priceData.converted}</span> {priceData.main}
+              <span className="price-converted">({priceData.converted})</span>
+              <span className="price-main">{priceData.main}</span>
             </>
-          ) : (typeof priceData === 'object' ? priceData.main : priceData)
+          ) : (
+            <span className="price-main">{typeof priceData === 'object' ? priceData.main : priceData}</span>
+          )
         ) : '—'}
       </span>
     </article>
@@ -153,7 +180,7 @@ const generatePositions = (count) => {
   const positions = [];
   const actualCount = Math.min(count, MAX_IMAGES);
   const rotations = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
-  
+
   // Seeded random for consistent layout
   let seed = 42;
   const seededRandom = () => {
@@ -172,24 +199,51 @@ const generatePositions = (count) => {
   const getWidthForPosition = () => {
     return imageWidthBase; // Percentage of viewport width
   };
+  const totalRowsBaseline = Math.max(Math.ceil(actualCount / columns), 1);
+  const rowPattern = isMobile ? [1] : isTablet ? [2, 3, 2] : [4, 5, 4, 5];
+  const cells = [];
+  let remaining = actualCount;
+  let rowIndex = 0;
+
+  while (remaining > 0) {
+    const targetCols = rowPattern[rowIndex % rowPattern.length];
+    const colsInRow = Math.min(targetCols, remaining);
+
+    for (let col = 0; col < colsInRow; col++) {
+      cells.push({ row: rowIndex, col, columnsInRow: colsInRow });
+    }
+
+    remaining -= colsInRow;
+    rowIndex += 1;
+  }
+
+  const totalRows = Math.max(rowIndex, 1);
+  const verticalSpacing = 100 / totalRows;
+
+  // Shuffle cells to randomize grid assignment while keeping spacing
+  for (let i = cells.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom() * (i + 1));
+    [cells[i], cells[j]] = [cells[j], cells[i]];
+  }
   
-  const totalRows = Math.ceil(actualCount / columns);
-  const colWidth = 100 / columns;
+  // Shuffle cells to randomize grid assignment while keeping spacing
+  for (let i = cells.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom() * (i + 1));
+    [cells[i], cells[j]] = [cells[j], cells[i]];
+  }
 
   for (let i = 0; i < actualCount; i++) {
-    const row = Math.floor(i / columns);
-    const col = i % columns;
-    
-    // Base position in the grid - top is now a simple percentage of total height
+    const { row, col, columnsInRow } = cells[i] || { row: Math.floor(i / columns), col: i % columns, columnsInRow: columns };
+    const colWidth = 100 / columnsInRow;
     const baseLeft = col * colWidth + (colWidth / 2);
-    const baseTop = (row / totalRows) * 100 + (100 / totalRows / 4);
+    const baseTop = row * verticalSpacing + Math.min(verticalSpacing * 0.15, 6);
     
-    // Controlled scatter
-    const scatterX = (seededRandom() - 0.5) * (colWidth * (isMobile ? 0.1 : 0.4));
-    const scatterY = (seededRandom() - 0.5) * (100 / totalRows * 0.5);
+    // Controlled scatter with limited spread
+    const scatterX = (seededRandom() - 0.5) * (colWidth * (isMobile ? 0.08 : 0.3));
+    const scatterY = (seededRandom() - 0.5) * (verticalSpacing * 0.6);
     
-    const left = Math.max(isMobile ? 10 : 5, Math.min(isMobile ? 90 : 95, baseLeft + scatterX));
-    const top = baseTop + scatterY;
+    const left = Math.min(Math.max(baseLeft + scatterX, isMobile ? 4 : 3), isMobile ? 96 : 97);
+    const top = Math.min(Math.max(baseTop + scatterY, isMobile ? 2 : 1), isMobile ? 98 : 98);
     
     const rotate = rotations[Math.floor(seededRandom() * rotations.length)];
     const widthNum = getWidthForPosition();
@@ -263,6 +317,13 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onTouchSt
   const translateX = useSpring(useTransform(mouseX, [-0.5, 0.5], [strength, -strength]), springConfig);
   const translateY = useSpring(useTransform(mouseY, [-0.5, 0.5], [strength, -strength]), springConfig);
 
+  const hoverAnimation = isDragging ? undefined : {
+    scale: 1.05,
+    y: [-2, -6, -2, -4, 0],
+    x: [-2, 3, -1, 2, 0],
+    boxShadow: '0 24px 60px rgba(0, 0, 0, 0.45)',
+  };
+
   return (
     <motion.article
       key={image.id}
@@ -297,6 +358,7 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onTouchSt
           times: [0, 0.45, 0.55, 1],
           delay: index * 0.2,
         }}
+        whileHover={hoverAnimation}
       >
         <img 
           src={image.src} 

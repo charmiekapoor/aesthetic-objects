@@ -94,6 +94,8 @@ function ImageModal({ image, onClose, onNavigate }) {
   if (!image) return null;
 
   const hasDetails = image.name || image.story || image.price;
+  const itemCode = `#${image.id.toString().padStart(3, '0')}`;
+  const titleMeta = image.brand ? `${itemCode} • ${image.brand}` : itemCode;
 
   return (
     <AnimatePresence>
@@ -105,104 +107,127 @@ function ImageModal({ image, onClose, onNavigate }) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
-        <motion.div 
-          className="modal-content"
-          onClick={(e) => e.stopPropagation()}
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
-        >
-          <button className="close-btn" onClick={onClose} aria-label="Close modal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-          
-          <div className="modal-image-section">
-            <motion.img 
-              src={image.src} 
-              alt={image.name || `Item ${image.id}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
-            />
-          </div>
-          
-          <div className="modal-details">
-            {/* Item Code */}
-            <span className="item-code">#{image.id.toString().padStart(3, '0')}</span>
-
-            {/* Title */}
-            <h2 className="modal-title">{image.name || `Object #${image.id}`}</h2>
-
-            {/* Brand */}
-            {image.brand && (
-              <span className="modal-brand">{image.brand}</span>
-            )}
-
-            {/* Pills with emojis */}
-            <div className="modal-header">
-              {image.howAcquired && (
-                <span className={`modal-badge ${image.howAcquired.toLowerCase()}`}>
-                  {image.howAcquired === 'Gifted' ? '🎁' : image.howAcquired === 'Earned' ? '🏆' : '🛒'} {image.howAcquired}
-                </span>
-              )}
-              {image.from && (
-                <span className="modal-badge location">
-                  {countryFlags[image.from] || '📍'} {image.from}
-                </span>
-              )}
-            </div>
-
-            {/* Divider */}
-            <hr className="modal-divider" />
+        <div className="modal-shell" onClick={(e) => e.stopPropagation()}>
+          <motion.div 
+            className="modal-content"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
+          >
+            <button className="close-btn" onClick={onClose} aria-label="Close modal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
             
-            {/* Memory / Story */}
-            {image.story && (
-              <div className="modal-story">
-                <p>{image.story}</p>
+            <div className="modal-image-section">
+              <motion.img 
+                src={image.src} 
+                alt={image.name || `Item ${image.id}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
+              />
+            </div>
+            
+            <div className="modal-details">
+              <span className="modal-title-meta">{titleMeta}</span>
+
+              {/* Title */}
+              <h2 className="modal-title">{image.name || `Object #${image.id}`}</h2>
+
+              {/* Pills with emojis */}
+              <div className="modal-header">
+                {image.howAcquired && (
+                  <span className={`modal-badge ${image.howAcquired.toLowerCase()}`}>
+                    {image.howAcquired === 'Gifted' ? '🎁' : image.howAcquired === 'Earned' ? '🏆' : '🛒'} {image.howAcquired}
+                  </span>
+                )}
+                {image.from && (
+                  <span className="modal-badge location">
+                    {countryFlags[image.from] || '📍'} {image.from}
+                  </span>
+                )}
               </div>
-            )}
 
-            {!hasDetails && !image.story && (
-              <p className="no-details">Details coming soon...</p>
-            )}
+              {/* Divider */}
+              <hr className="modal-divider" />
+              
+              {/* Memory / Story */}
+              {image.story && (
+                <div className="modal-story">
+                  <p>{image.story}</p>
+                </div>
+              )}
 
-            {/* Footer with Link (Left) and Price (Right) */}
-            <div className="modal-footer">
-              <div className="footer-content">
-                {image.link ? (
+              {!hasDetails && !image.story && (
+                <p className="no-details">Details coming soon...</p>
+              )}
+
+              {/* Footer with Link (Left) and Price (Right) */}
+              <div className="modal-footer">
+                <div className="footer-content">
+                  {image.link ? (
                   <a 
                     href={image.link} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="product-link"
                   >
-                    View Product
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M7 17L17 7M17 7H7M17 7V17" />
-                    </svg>
-                  </a>
-                ) : (
-                  <div /> 
-                )}
-                
-                {image.price && (() => {
-                  const priceData = formatPrice(image.price);
-                  return priceData ? (
-                    <span className="footer-price">
-                      {priceData.main}
-                      {priceData.converted && (
-                        <span className="price-converted"> ({priceData.converted})</span>
-                      )}
+                    View product
+                    <span className="product-link-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M7 17L17 7M17 7H7M17 7V17" />
+                      </svg>
                     </span>
-                  ) : null;
-                })()}
+                  </a>
+                  ) : (
+                    <div /> 
+                  )}
+                  
+                  {image.price && (() => {
+                    const priceData = formatPrice(image.price);
+                    return priceData ? (
+                      <span className="footer-price">
+                        {priceData.main}
+                        {priceData.converted && (
+                          <span className="price-converted"> ({priceData.converted})</span>
+                        )}
+                      </span>
+                    ) : null;
+                  })()}
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+
+          <button
+            className="nav-arrow nav-arrow-left"
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate?.('prev');
+            }}
+            aria-label="Previous item"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </button>
+
+          <button
+            className="nav-arrow nav-arrow-right"
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate?.('next');
+            }}
+            aria-label="Next item"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </motion.div>
     </AnimatePresence>
   );
