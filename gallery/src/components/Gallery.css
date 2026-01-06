@@ -1,3 +1,282 @@
+/* ==================== GRID VIEW ==================== */
+.grid-gallery {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 32px 40px;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  min-height: calc(100vh - 160px);
+}
+
+.grid-item {
+  cursor: pointer;
+  background: var(--card-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.grid-item:hover {
+  box-shadow: 0 8px 32px var(--shadow-color);
+}
+
+.grid-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--skeleton-bg);
+}
+
+.grid-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.grid-item:hover .grid-image-wrapper img {
+  transform: scale(1.03);
+}
+
+.grid-item-info {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--card-bg);
+}
+
+.grid-item-name {
+  font-family: var(--font-product);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.grid-item-price {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ==================== GRID THEME: Editorial (Grid Mode) ==================== */
+.theme-grid .grid-item {
+  border-radius: 2px;
+  border: none;
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.theme-grid .grid-item:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.theme-grid .grid-image-wrapper {
+  border-radius: 0;
+}
+
+.theme-grid .grid-item-name {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.theme-grid .grid-item-price {
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+/* ==================== GRID THEME: Dark & Bold (List Mode) ==================== */
+.theme-list .grid-item {
+  border-radius: 0;
+  border: 2px solid var(--border-color);
+  background: var(--card-bg);
+}
+
+.theme-list .grid-item:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 24px var(--deco-color-1), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.theme-list .grid-image-wrapper {
+  border-radius: 0;
+}
+
+.theme-list .grid-item-info {
+  border-top: 1px solid var(--border-color);
+}
+
+.theme-list .grid-item-name {
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.theme-list .grid-item-price {
+  color: var(--accent-color);
+  font-weight: 700;
+}
+
+/* ==================== GRID THEME: Warm (Scattered Mode) ==================== */
+.theme-scattered .grid-item {
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+.theme-scattered .grid-item:hover {
+  box-shadow: 0 6px 24px rgba(61, 53, 48, 0.1);
+  border-color: var(--accent-color);
+}
+
+.theme-scattered .grid-image-wrapper {
+  border-radius: 8px 8px 0 0;
+}
+
+.theme-scattered .grid-item-name {
+  font-weight: 400;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.theme-scattered .grid-item-price {
+  color: var(--accent-color);
+  font-style: normal;
+}
+
+/* ==================== LIST VIEW - Minimal Rows ==================== */
+.list-gallery {
+  display: flex;
+  flex-direction: column;
+  padding: 0 40px;
+  width: 100%;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.list-item:first-child {
+  border-top: 1px solid var(--border-color);
+}
+
+.list-item.last {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.list-item:hover {
+  background: var(--input-bg);
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.list-item-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  min-width: 0;
+}
+
+.list-item-image {
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--skeleton-bg);
+}
+
+.list-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.list-item-name {
+  font-family: var(--font-product);
+  font-size: 1.025rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-item-price {
+  font-family: var(--font-body);
+  font-size: 0.975rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-left: 24px;
+}
+
+/* ==================== LIST THEME: Dark & Bold ==================== */
+.theme-list .list-item {
+  border-color: var(--border-color);
+  transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-list .list-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--accent-color);
+  transition: width 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-list .list-item:hover {
+  background: #080808;
+  padding-left: 16px;
+  margin-left: -8px;
+  margin-right: -8px;
+  padding-right: 8px;
+}
+
+.theme-list .list-item:hover::before {
+  width: 3px;
+}
+
+.theme-list .list-item:hover .list-item-name {
+  color: var(--accent-color);
+  transition: color 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-list .list-item-image {
+  border: none;
+}
+
+.theme-list .list-item-name {
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+}
+
+.theme-list .list-item-price {
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ==================== SCATTERED VIEW ==================== */
 .scattered-gallery {
   position: relative;
   width: 100%;
@@ -17,20 +296,25 @@
   cursor: grabbing;
 }
 
-.scattered-item:hover {
-}
+/* Hover state handled on child elements */
 
 .scattered-image-wrapper {
   position: relative;
   overflow: hidden;
   border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease;
+}
+
+.scattered-item:hover .scattered-image-wrapper {
+  box-shadow: 0 0 40px var(--deco-color-1), 0 16px 48px rgba(0, 0, 0, 0.4);
 }
 
 .scattered-image-wrapper::before {
   content: '';
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 4px;
   pointer-events: none;
   z-index: 1;
@@ -42,10 +326,38 @@
   display: block;
 }
 
-/* Responsive adjustments */
+/* ==================== SCATTERED THEME: Warm & Cozy ==================== */
+.theme-scattered .scattered-image-wrapper {
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 32px rgba(61, 53, 48, 0.15);
+}
+
+.theme-scattered .scattered-image-wrapper::before {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.theme-scattered .scattered-item:hover .scattered-image-wrapper {
+  border-color: var(--accent-color);
+  box-shadow: 0 12px 40px rgba(196, 92, 58, 0.2), 0 8px 24px rgba(61, 53, 48, 0.1);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1200px) {
+  .grid-gallery {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
 @media (max-width: 1024px) {
   .scattered-gallery {
     height: 220vh;
+  }
+
+  .grid-gallery {
+    padding: 24px 32px;
   }
 }
 
@@ -53,10 +365,106 @@
   .scattered-gallery {
     height: 1000vh;
   }
+
+  .grid-gallery {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 20px 20px;
+  }
+
+  .grid-item-info {
+    padding: 10px 12px;
+  }
+
+  .grid-item-name {
+    font-size: 0.8rem;
+  }
+
+  .grid-item-price {
+    font-size: 0.7rem;
+  }
+
+  .list-gallery {
+    padding: 0 16px;
+  }
+
+  .list-item {
+    padding: 16px 0;
+  }
+
+  .list-item-left {
+    gap: 16px;
+  }
+
+  .list-item-image {
+    width: 72px;
+    height: 72px;
+  }
+
+  .list-item-name {
+    font-size: 0.95rem;
+  }
+
+  .list-item-price {
+    font-size: 0.9rem;
+    margin-left: 16px;
+  }
 }
 
 @media (max-width: 480px) {
   .scattered-gallery {
     height: 1400vh;
+  }
+
+  .grid-gallery {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .grid-item-info {
+    padding: 8px 10px;
+  }
+
+  .grid-item-name {
+    font-size: 0.75rem;
+  }
+
+  .grid-item-price {
+    font-size: 0.65rem;
+  }
+
+  .list-gallery {
+    padding: 0 12px;
+  }
+
+  .list-item {
+    padding: 14px 0;
+  }
+
+  .list-item-left {
+    gap: 12px;
+  }
+
+  .list-item-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .list-item-name {
+    font-size: 0.875rem;
+  }
+
+  .list-item-price {
+    font-size: 0.825rem;
+    margin-left: 12px;
+  }
+
+  .theme-list .list-item-name {
+    font-size: 0.8rem;
+  }
+
+  .theme-list .list-item-price {
+    font-size: 0.8rem;
   }
 }

@@ -1,11 +1,117 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity, AnimatePresence } from 'framer-motion';
 import { galleryImages } from '../data/images';
 import ImageModal from './ImageModal';
 import './Gallery.css';
 
 // Configuration
 const MAX_IMAGES = 64;
+
+// Format price as "<currency symbol><amount>"
+const formatPrice = (price) => {
+  if (!price) return '';
+  
+  // Handle different formats
+  const priceStr = price.toString().trim();
+  
+  // Rs.3699 or Rs 3699 → ₹3699
+  if (priceStr.toLowerCase().startsWith('rs')) {
+    const amount = priceStr.replace(/rs\.?\s*/i, '').trim();
+    return `₹${amount}`;
+  }
+  
+  // $16 → $16
+  if (priceStr.startsWith('$')) {
+    const amount = priceStr.replace('$', '').trim();
+    return `$${amount}`;
+  }
+  
+  // €72 → €72
+  if (priceStr.startsWith('€')) {
+    const amount = priceStr.replace('€', '').trim();
+    return `€${amount}`;
+  }
+  
+  // £50 → £50
+  if (priceStr.startsWith('£')) {
+    const amount = priceStr.replace('£', '').trim();
+    return `£${amount}`;
+  }
+  
+  // 2000 yen → ¥2000
+  if (priceStr.toLowerCase().includes('yen')) {
+    const amount = priceStr.toLowerCase().replace('yen', '').trim();
+    return `¥${amount}`;
+  }
+  
+  return priceStr;
+};
+
+// Grid Item Component
+function GridItem({ image, index, onClick }) {
+  return (
+    <motion.article
+      className="grid-item"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ 
+        duration: 0.4,
+        delay: index * 0.02,
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
+      whileHover={{ y: -4 }}
+      onClick={() => onClick(image)}
+      layout
+    >
+      <div className="grid-image-wrapper">
+        <img 
+          src={image.src} 
+          alt={image.name || `Item ${image.id}`} 
+          loading="lazy"
+          draggable="false"
+        />
+      </div>
+      {image.name && (
+        <div className="grid-item-info">
+          <span className="grid-item-name">{image.name}</span>
+          {image.price && <span className="grid-item-price">{formatPrice(image.price)}</span>}
+        </div>
+      )}
+    </motion.article>
+  );
+}
+
+// List Item Component - Minimal row-based layout
+function ListItem({ image, index, onClick, isLast }) {
+  return (
+    <motion.article
+      className={`list-item ${isLast ? 'last' : ''}`}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ 
+        duration: 0.3,
+        delay: index * 0.015,
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
+      onClick={() => onClick(image)}
+    >
+      <div className="list-item-left">
+        <div className="list-item-image">
+          <img 
+            src={image.src} 
+            alt={image.name || `Item ${image.id}`} 
+            loading="lazy"
+            draggable="false"
+          />
+        </div>
+        <span className="list-item-name">{image.name || `Item ${image.id}`}</span>
+      </div>
+      <span className="list-item-price">{formatPrice(image.price) || '—'}</span>
+    </motion.article>
+  );
+}
 
 // Generate organic scattered positions without overlapping
 const generatePositions = (count) => {
@@ -168,7 +274,7 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onClick }
   );
 }
 
-function Gallery() {
+function Gallery({ viewMode = 'grid' }) {
   // Limit to MAX_IMAGES (64 images across 4 folds)
   const displayedImages = galleryImages.slice(0, MAX_IMAGES);
   
@@ -257,16 +363,73 @@ function Gallery() {
   }, []);
 
   const handleImageClick = useCallback((image) => {
-    // Only open modal if we didn't drag
-    if (!hasDragged.current) {
-      setSelectedImage(image);
+    // Only open modal if we didn't drag (for scattered view)
+    if (viewMode === 'scattered' && hasDragged.current) {
+      return;
     }
-  }, []);
+    setSelectedImage(image);
+  }, [viewMode]);
 
   const handleCloseModal = useCallback(() => {
     setSelectedImage(null);
   }, []);
 
+  // Grid View
+  if (viewMode === 'grid') {
+    return (
+      <>
+        <section className="grid-gallery">
+          <AnimatePresence mode="popLayout">
+            {displayedImages.map((image, index) => (
+              <GridItem
+                key={image.id}
+                image={image}
+                index={index}
+                onClick={handleImageClick}
+              />
+            ))}
+          </AnimatePresence>
+        </section>
+
+        {selectedImage && (
+          <ImageModal 
+            image={selectedImage} 
+            onClose={handleCloseModal} 
+          />
+        )}
+      </>
+    );
+  }
+
+  // List View - Minimal rows with dividers
+  if (viewMode === 'list') {
+    return (
+      <>
+        <section className="list-gallery">
+          <AnimatePresence mode="popLayout">
+            {displayedImages.map((image, index) => (
+              <ListItem
+                key={image.id}
+                image={image}
+                index={index}
+                onClick={handleImageClick}
+                isLast={index === displayedImages.length - 1}
+              />
+            ))}
+          </AnimatePresence>
+        </section>
+
+        {selectedImage && (
+          <ImageModal 
+            image={selectedImage} 
+            onClose={handleCloseModal} 
+          />
+        )}
+      </>
+    );
+  }
+
+  // Scattered View (default fallback)
   return (
     <>
       <section 
