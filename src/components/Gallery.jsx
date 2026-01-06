@@ -1,16 +1,123 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity, AnimatePresence } from 'framer-motion';
 import { galleryImages } from '../data/images';
+import ImageModal from './ImageModal';
 import './Gallery.css';
 
 // Configuration
 const MAX_IMAGES = 64;
 
+// Format price as "<currency symbol><amount>"
+const formatPrice = (price) => {
+  if (!price) return '';
+  
+  // Handle different formats
+  const priceStr = price.toString().trim();
+  
+  // Rs.3699 or Rs 3699 → ₹3699
+  if (priceStr.toLowerCase().startsWith('rs')) {
+    const amount = priceStr.replace(/rs\.?\s*/i, '').trim();
+    return `₹${amount}`;
+  }
+  
+  // $16 → $16
+  if (priceStr.startsWith('$')) {
+    const amount = priceStr.replace('$', '').trim();
+    return `$${amount}`;
+  }
+  
+  // €72 → €72
+  if (priceStr.startsWith('€')) {
+    const amount = priceStr.replace('€', '').trim();
+    return `€${amount}`;
+  }
+  
+  // £50 → £50
+  if (priceStr.startsWith('£')) {
+    const amount = priceStr.replace('£', '').trim();
+    return `£${amount}`;
+  }
+  
+  // 2000 yen → ¥2000
+  if (priceStr.toLowerCase().includes('yen')) {
+    const amount = priceStr.toLowerCase().replace('yen', '').trim();
+    return `¥${amount}`;
+  }
+  
+  return priceStr;
+};
+
+// Grid Item Component
+function GridItem({ image, index, onClick }) {
+  return (
+    <motion.article
+      className="grid-item"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ 
+        duration: 0.4,
+        delay: index * 0.02,
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
+      whileHover={{ y: -4 }}
+      onClick={() => onClick(image)}
+      layout
+    >
+      <div className="grid-image-wrapper">
+        <img 
+          src={image.src} 
+          alt={image.name || `Item ${image.id}`} 
+          loading="lazy"
+          draggable="false"
+        />
+      </div>
+      {image.name && (
+        <div className="grid-item-info">
+          <span className="grid-item-name">{image.name}</span>
+          {image.price && <span className="grid-item-price">{formatPrice(image.price)}</span>}
+        </div>
+      )}
+    </motion.article>
+  );
+}
+
+// List Item Component - Minimal row-based layout
+function ListItem({ image, index, onClick, isLast }) {
+  return (
+    <motion.article
+      className={`list-item ${isLast ? 'last' : ''}`}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ 
+        duration: 0.3,
+        delay: index * 0.015,
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
+      onClick={() => onClick(image)}
+    >
+      <div className="list-item-left">
+        <div className="list-item-image">
+          <img 
+            src={image.src} 
+            alt={image.name || `Item ${image.id}`} 
+            loading="lazy"
+            draggable="false"
+          />
+        </div>
+        <span className="list-item-name">{image.name || `Item ${image.id}`}</span>
+      </div>
+      <span className="list-item-price">{formatPrice(image.price) || '—'}</span>
+    </motion.article>
+  );
+}
+
 // Generate organic scattered positions without overlapping
 const generatePositions = (count) => {
   const positions = [];
   const actualCount = Math.min(count, MAX_IMAGES);
-  const rotations = [-12, -8, -5, -3, 0, 3, 5, 8, 12];
+  const rotations = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
   
   // Seeded random for consistent layout
   let seed = 42;
@@ -18,102 +125,49 @@ const generatePositions = (count) => {
     seed = (seed * 9301 + 49297) % 233280;
     return seed / 233280;
   };
+
+  const width = window.innerWidth;
+  const isMobile = width <= 480;
+  const isTablet = width <= 768;
+
+  // Adjust columns and width based on device
+  const columns = isMobile ? 1 : (isTablet ? 2 : 4);
+  const imageWidthBase = isMobile ? 80 : (isTablet ? 40 : 18);
   
-  // Calculate width based on distance from center - larger in center, smaller at edges
-  const getWidthForPosition = (leftPos) => {
-    // Center is at 50%, calculate distance from center (0-50)
-    const distanceFromCenter = Math.abs(leftPos - 50);
-    // Normalize to 0-1 (0 = center, 1 = edge)
-    const normalizedDistance = distanceFromCenter / 50;
-    // Larger in center (~18-21%), smaller at edges (~9-12%) - increased by ~1.3x
-    const minWidth = 10 + seededRandom() * 2;
-    const maxWidth = 19 + seededRandom() * 3;
-    const width = maxWidth - (normalizedDistance * (maxWidth - minWidth));
-    return Math.round(width);
+  const getWidthForPosition = () => {
+    return imageWidthBase; // Percentage of viewport width
   };
   
-  // Collision detection - check if new position overlaps with existing
-  const checkCollision = (newPos, existing) => {
-    const paddingX = 3; // % padding between images horizontally
-    const paddingY = 2; // % padding between images vertically
-    for (const pos of existing) {
-      const overlapX = Math.abs(newPos.left - pos.left) < (newPos.widthNum + pos.widthNum) / 2 + paddingX;
-      // Assume average height is ~9% (width 15% * aspect ratio)
-      const overlapY = Math.abs(newPos.top - pos.top) < 9 + paddingY;
-      if (overlapX && overlapY) return true;
-    }
-    return false;
-  };
-  
-  // Place images with organic flow - zigzag pattern with randomness
-  let currentTop = 3;
-  let direction = 1; // 1 = moving right, -1 = moving left
-  let currentLeft = 8;
-  
+  const totalRows = Math.ceil(actualCount / columns);
+  const colWidth = 100 / columns;
+
   for (let i = 0; i < actualCount; i++) {
+    const row = Math.floor(i / columns);
+    const col = i % columns;
+    
+    // Base position in the grid - top is now a simple percentage of total height
+    const baseLeft = col * colWidth + (colWidth / 2);
+    const baseTop = (row / totalRows) * 100 + (100 / totalRows / 4);
+    
+    // Controlled scatter
+    const scatterX = (seededRandom() - 0.5) * (colWidth * (isMobile ? 0.1 : 0.4));
+    const scatterY = (seededRandom() - 0.5) * (100 / totalRows * 0.5);
+    
+    const left = Math.max(isMobile ? 10 : 5, Math.min(isMobile ? 90 : 95, baseLeft + scatterX));
+    const top = baseTop + scatterY;
+    
     const rotate = rotations[Math.floor(seededRandom() * rotations.length)];
-    
-    // Try to find a non-overlapping position
-    let attempts = 0;
-    let finalPos = null;
-    
-    while (attempts < 100) {
-      // Organic flow: zigzag down the page with randomness
-      const randomOffsetX = (seededRandom() - 0.5) * 8;
-      const randomOffsetY = (seededRandom() - 0.5) * 1;
-      
-      const testLeft = Math.max(5, Math.min(75, currentLeft + randomOffsetX));
-      const widthNum = getWidthForPosition(testLeft);
-      
-      const testPos = {
-        top: currentTop + randomOffsetY,
-        left: testLeft,
-        widthNum,
-      };
-      
-      if (!checkCollision(testPos, positions)) {
-        finalPos = testPos;
-        break;
-      }
-      attempts++;
-      
-      // If collision, try moving further along the path
-      currentLeft += 4 * direction;
-      if (currentLeft > 75 || currentLeft < 5) {
-        direction *= -1;
-        currentTop += 4 + seededRandom() * 2;
-        currentLeft = direction > 0 ? 8 + seededRandom() * 5 : 72 - seededRandom() * 5;
-      }
-    }
-    
-    // Fallback if no position found
-    if (!finalPos) {
-      const widthNum = getWidthForPosition(currentLeft);
-      finalPos = {
-        top: currentTop,
-        left: currentLeft,
-        widthNum,
-      };
-    }
-    
+    const widthNum = getWidthForPosition();
+
     positions.push({
-      top: finalPos.top,
-      left: finalPos.left,
-      width: `${finalPos.widthNum}%`,
-      widthNum: finalPos.widthNum,
+      top,
+      left: left - (widthNum / 2), 
+      width: `${widthNum}%`,
+      widthNum,
       rotate,
       zIndex: Math.floor(seededRandom() * 3) + 1,
+      id: galleryImages[i].id
     });
-    
-    // Move to next position with organic flow
-    currentLeft += (16 + seededRandom() * 8) * direction;
-    
-    // Bounce off edges and move down
-    if (currentLeft > 72 || currentLeft < 8) {
-      direction *= -1;
-      currentTop += 7 + seededRandom() * 3;
-      currentLeft = direction > 0 ? 8 + seededRandom() * 10 : 72 - seededRandom() * 10;
-    }
   }
   
   return positions;
@@ -211,7 +265,7 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onClick }
       >
         <img 
           src={image.src} 
-          alt={image.title} 
+          alt={image.name || `Item ${image.id}`} 
           loading="lazy"
           draggable="false"
         />
@@ -220,7 +274,7 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onClick }
   );
 }
 
-function Gallery() {
+function Gallery({ viewMode = 'grid' }) {
   // Limit to MAX_IMAGES (64 images across 4 folds)
   const displayedImages = galleryImages.slice(0, MAX_IMAGES);
   
@@ -231,6 +285,22 @@ function Gallery() {
       id: img.id,
     }));
   });
+
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const generated = generatePositions(displayedImages.length);
+      setPositions(displayedImages.map((img, index) => ({
+        ...generated[index],
+        id: img.id,
+      })));
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [displayedImages.length]);
+
   const [dragging, setDragging] = useState(null);
   const [maxZIndex, setMaxZIndex] = useState(100);
   
@@ -292,34 +362,107 @@ function Gallery() {
     setDragging(null);
   }, []);
 
-  const handleImageClick = () => {
-    // Do nothing on tap for now
-  };
+  const handleImageClick = useCallback((image) => {
+    // Only open modal if we didn't drag (for scattered view)
+    if (viewMode === 'scattered' && hasDragged.current) {
+      return;
+    }
+    setSelectedImage(image);
+  }, [viewMode]);
 
-  return (
-    <section 
-      className="scattered-gallery"
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
-      {displayedImages.map((image, index) => {
-        const position = positions.find(p => p.id === image.id) || positions[index];
-        
-        return (
-          <ParallaxItem
-            key={image.id}
-            image={image}
-            position={position}
-            index={index}
-            dragging={dragging}
-            onMouseDown={handleMouseDown}
-            onClick={handleImageClick}
+  const handleCloseModal = useCallback(() => {
+    setSelectedImage(null);
+  }, []);
+
+  // Grid View
+  if (viewMode === 'grid') {
+    return (
+      <>
+        <section className="grid-gallery">
+          <AnimatePresence mode="popLayout">
+            {displayedImages.map((image, index) => (
+              <GridItem
+                key={image.id}
+                image={image}
+                index={index}
+                onClick={handleImageClick}
+              />
+            ))}
+          </AnimatePresence>
+        </section>
+
+        {selectedImage && (
+          <ImageModal 
+            image={selectedImage} 
+            onClose={handleCloseModal} 
           />
-        );
-      })}
-    </section>
+        )}
+      </>
+    );
+  }
+
+  // List View - Minimal rows with dividers
+  if (viewMode === 'list') {
+    return (
+      <>
+        <section className="list-gallery">
+          <AnimatePresence mode="popLayout">
+            {displayedImages.map((image, index) => (
+              <ListItem
+                key={image.id}
+                image={image}
+                index={index}
+                onClick={handleImageClick}
+                isLast={index === displayedImages.length - 1}
+              />
+            ))}
+          </AnimatePresence>
+        </section>
+
+        {selectedImage && (
+          <ImageModal 
+            image={selectedImage} 
+            onClose={handleCloseModal} 
+          />
+        )}
+      </>
+    );
+  }
+
+  // Scattered View (default fallback)
+  return (
+    <>
+      <section 
+        className="scattered-gallery"
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        {displayedImages.map((image, index) => {
+          const position = positions.find(p => p.id === image.id) || positions[index];
+          
+          return (
+            <ParallaxItem
+              key={image.id}
+              image={image}
+              position={position}
+              index={index}
+              dragging={dragging}
+              onMouseDown={handleMouseDown}
+              onClick={handleImageClick}
+            />
+          );
+        })}
+      </section>
+
+      {selectedImage && (
+        <ImageModal 
+          image={selectedImage} 
+          onClose={handleCloseModal} 
+        />
+      )}
+    </>
   );
 }
 

@@ -1,65 +1,117 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Import Google Fonts - Three distinct personalities */
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap');
 
-/* CSS Custom Properties - Warm Earthy Aesthetic */
-:root {
+/* ============================================
+   THEME: GRID MODE - Clean Minimalism
+   Neutral, modern gallery aesthetic
+   ============================================ */
+.theme-grid {
   /* Fonts */
-  --font-display: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Public Sans', system-ui, sans-serif;
+  --font-body: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-product: 'Public Sans', sans-serif;
 
-  /* Colors - Warm terracotta & sage palette */
-  --bg-primary: #EFE5DB;
-  --bg-header: rgba(250, 248, 245, 0.9);
+  /* Colors - Neutral grey palette */
+  --bg-primary: #F3F3F3;
+  --bg-header: rgba(243, 243, 243, 0.92);
   --card-bg: #FFFFFF;
-  --input-bg: #F5F2EE;
-  --skeleton-bg: #EDE9E3;
+  --input-bg: #EBEBEB;
+  --skeleton-bg: #E0E0E0;
   
-  --text-primary: #2C2825;
-  --text-secondary: #5C5650;
-  --text-muted: #9A938B;
+  --text-primary: #1A1A1A;
+  --text-secondary: #4A4A4A;
+  --text-muted: #8A8A8A;
   
-  --border-color: #E8E3DC;
-  --shadow-color: rgba(44, 40, 37, 0.08);
+  --border-color: #DCDCDC;
+  --shadow-color: rgba(0, 0, 0, 0.06);
   
-  --accent-color: #C4775D;
-  --accent-bg: rgba(196, 119, 93, 0.1);
-  --accent-hover: #A85F47;
+  --accent-color: #666666;
+  --accent-bg: rgba(102, 102, 102, 0.08);
+  --accent-hover: #4A4A4A;
   
-  --tag-bg: #F0EDE8;
+  --tag-bg: #EBEBEB;
   
   /* Decoration colors */
-  --deco-color-1: rgba(196, 119, 93, 0.15);
-  --deco-color-2: rgba(142, 157, 133, 0.15);
-  --deco-color-3: rgba(181, 166, 143, 0.15);
+  --deco-color-1: rgba(102, 102, 102, 0.1);
+  --deco-color-2: rgba(128, 128, 128, 0.1);
+  --deco-color-3: rgba(160, 160, 160, 0.08);
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: #1A1816;
-    --bg-header: rgba(26, 24, 22, 0.9);
-    --card-bg: #242220;
-    --input-bg: #2A2725;
-    --skeleton-bg: #302D2A;
-    
-    --text-primary: #F5F2EE;
-    --text-secondary: #B8B2A8;
-    --text-muted: #7A756D;
-    
-    --border-color: #3A3632;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    
-    --accent-color: #D4886E;
-    --accent-bg: rgba(212, 136, 110, 0.15);
-    
-    --tag-bg: #2F2C28;
-    
-    --deco-color-1: rgba(212, 136, 110, 0.1);
-    --deco-color-2: rgba(142, 157, 133, 0.1);
-    --deco-color-3: rgba(181, 166, 143, 0.1);
-  }
+/* ============================================
+   THEME: LIST MODE - Dark & Bold
+   Dramatic, moody reading experience
+   ============================================ */
+.theme-list {
+  /* Fonts */
+  --font-display: 'Syne', system-ui, sans-serif;
+  --font-body: 'Space Mono', 'Courier New', monospace;
+  --font-product: 'Space Mono', monospace;
+
+  /* Colors - Dark with vibrant pops */
+  --bg-primary: #0F0F0F;
+  --bg-header: rgba(15, 15, 15, 0.88);
+  --card-bg: #1A1A1A;
+  --input-bg: #252525;
+  --skeleton-bg: #2A2A2A;
+  
+  --text-primary: #F5F5F5;
+  --text-secondary: #BDBDBD;
+  --text-muted: #757575;
+  
+  --border-color: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  
+  --accent-color: #CDFF64;
+  --accent-bg: rgba(205, 255, 100, 0.12);
+  --accent-hover: #E0FF8A;
+  
+  --tag-bg: #252525;
+  
+  /* Decoration colors */
+  --deco-color-1: rgba(205, 255, 100, 0.15);
+  --deco-color-2: rgba(255, 100, 200, 0.12);
+  --deco-color-3: rgba(100, 200, 255, 0.1);
 }
+
+/* ============================================
+   THEME: SCATTERED MODE - Warm & Cozy
+   Playful warmth, editorial comfort
+   ============================================ */
+.theme-scattered {
+  /* Fonts */
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-body: 'Newsreader', Georgia, serif;
+  --font-product: 'Newsreader', serif;
+
+  /* Colors - Warm cream & sepia palette */
+  --bg-primary: #FDF8F3;
+  --bg-header: rgba(253, 248, 243, 0.94);
+  --card-bg: #FFFCF8;
+  --input-bg: #F7F0E8;
+  --skeleton-bg: #EDE5DA;
+  
+  --text-primary: #3D3530;
+  --text-secondary: #6B5D52;
+  --text-muted: #A89888;
+  
+  --border-color: #E8DFD3;
+  --shadow-color: rgba(61, 53, 48, 0.08);
+  
+  --accent-color: #C45C3A;
+  --accent-bg: rgba(196, 92, 58, 0.1);
+  --accent-hover: #A74B2E;
+  
+  --tag-bg: #F5EDE3;
+  
+  /* Decoration colors */
+  --deco-color-1: rgba(196, 92, 58, 0.12);
+  --deco-color-2: rgba(168, 137, 100, 0.12);
+  --deco-color-3: rgba(142, 157, 133, 0.1);
+}
+
+/* ============================================
+   BASE STYLES & RESETS
+   ============================================ */
 
 /* Reset & Base Styles */
 *,
@@ -68,6 +120,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  letter-spacing: -0.01em;
 }
 
 html {
@@ -79,14 +132,12 @@ body {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
   background-color: var(--bg-primary);
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.018) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-attachment: fixed;
   min-height: 100vh;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 img {
@@ -105,6 +156,10 @@ button {
   color: white;
 }
 
+.theme-list ::selection {
+  color: #0F0F0F;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 10px;
@@ -118,6 +173,7 @@ button {
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 5px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -128,4 +184,24 @@ button {
 :focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
+}
+
+/* Smooth theme transitions for all themed elements */
+.app,
+.header,
+.filter-bar,
+.filter-pill,
+.filter-dropdown,
+.dropdown-menu,
+.view-toggles,
+.view-btn,
+.grid-item,
+.grid-item-info,
+.list-gallery,
+.scattered-gallery {
+  transition: 
+    background-color 0.5s ease,
+    border-color 0.5s ease,
+    color 0.5s ease,
+    box-shadow 0.3s ease;
 }
