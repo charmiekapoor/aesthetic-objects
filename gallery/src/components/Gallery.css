@@ -328,19 +328,18 @@
 
 /* ==================== SCATTERED THEME: Warm & Cozy ==================== */
 .theme-scattered .scattered-image-wrapper {
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 8px 32px rgba(61, 53, 48, 0.15);
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
 
 .theme-scattered .scattered-image-wrapper::before {
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: none;
 }
 
 .theme-scattered .scattered-item:hover .scattered-image-wrapper {
-  border-color: var(--accent-color);
-  box-shadow: 0 12px 40px rgba(196, 92, 58, 0.2), 0 8px 24px rgba(61, 53, 48, 0.1);
+  box-shadow: none;
 }
 
 /* ==================== RESPONSIVE ==================== */
