@@ -234,6 +234,29 @@ function ListItem({ image, onClick, isLast, onHover, onClickSound }) {
   );
 }
 
+function GalleryEmptyState({ viewMode, onClearFilters }) {
+  return (
+    <div className={`gallery-empty-state ${viewMode}`} role="status" aria-live="polite">
+      <div className="gallery-empty-state-content">
+        <span className="gallery-empty-state-icon" aria-hidden="true">
+          🧭
+        </span>
+        <h2>Nothing matches this combo (yet)</h2>
+        <p>You're curious, huh? For now, try a different mix.</p>
+        {onClearFilters && (
+          <button
+            type="button"
+            className="gallery-empty-state-cta"
+            onClick={onClearFilters}
+          >
+            Clear filters
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Generate organic scattered positions without overlapping
 const generatePositions = (count, seedOffset = 0) => {
   const positions = [];
@@ -436,7 +459,7 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onTouchSt
   );
 }
 
-function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All', color = 'All', country = 'All', onResultsChange, sortMethod = 'creator' }) {
+function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All', color = 'All', country = 'All', onResultsChange, sortMethod = 'creator', onClearFilters }) {
   const baseGalleryImages = useMemo(() => galleryImages.slice(0, MAX_IMAGES), []);
 
   const filteredImages = useMemo(() => {
@@ -503,6 +526,8 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
     return sorted;
   }, [filteredImages, sortMethod]);
 
+  const hasResults = displayedImages.length > 0;
+
   useEffect(() => {
     if (typeof onResultsChange === 'function') {
       onResultsChange(displayedImages.length);
@@ -558,6 +583,12 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
 
   const [selectedImage, setSelectedImage] = useState(null);
   const audioContextRef = useRef(null);
+
+  useEffect(() => {
+    if (!hasResults && selectedImage) {
+      setSelectedImage(null);
+    }
+  }, [hasResults, selectedImage]);
 
   const fallbackPositions = useMemo(() => generatePositions(displayedImages.length), [displayedImages.length]);
 
@@ -765,16 +796,20 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
     return (
       <>
         <section className="grid-gallery">
-          {displayedImages.map((image) => (
-            <GridItem
-              key={image.id}
-              image={image}
-              onClick={handleImageClick}
-            />
-          ))}
+          {hasResults ? (
+            displayedImages.map((image) => (
+              <GridItem
+                key={image.id}
+                image={image}
+                onClick={handleImageClick}
+              />
+            ))
+          ) : (
+            <GalleryEmptyState viewMode="grid" onClearFilters={onClearFilters} />
+          )}
         </section>
 
-        {selectedImage && (
+        {hasResults && selectedImage && (
           <ImageModal 
             image={selectedImage} 
             onClose={handleCloseModal}
@@ -791,19 +826,23 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
     return (
       <>
         <section className="list-gallery">
-          {displayedImages.map((image, index) => (
-            <ListItem
-              key={image.id}
-              image={image}
-              onClick={handleImageClick}
-              isLast={index === displayedImages.length - 1}
-              onHover={playListHoverSound}
-              onClickSound={playListClickSound}
-            />
-          ))}
+          {hasResults ? (
+            displayedImages.map((image, index) => (
+              <ListItem
+                key={image.id}
+                image={image}
+                onClick={handleImageClick}
+                isLast={index === displayedImages.length - 1}
+                onHover={playListHoverSound}
+                onClickSound={playListClickSound}
+              />
+            ))
+          ) : (
+            <GalleryEmptyState viewMode="list" onClearFilters={onClearFilters} />
+          )}
         </section>
 
-        {selectedImage && (
+        {hasResults && selectedImage && (
           <ImageModal 
             image={selectedImage} 
             onClose={handleCloseModal}
@@ -812,6 +851,14 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
           />
         )}
       </>
+    );
+  }
+
+  if (viewMode === 'scattered' && !hasResults) {
+    return (
+      <section className="scattered-gallery scattered-empty">
+        <GalleryEmptyState viewMode="scattered" onClearFilters={onClearFilters} />
+      </section>
     );
   }
 

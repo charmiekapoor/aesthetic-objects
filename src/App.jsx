@@ -152,7 +152,7 @@ function App() {
     <div className={`app ${themeClass}`}>
       <header className="header">
         <div className="header-left">
-          <h1 className="site-title">Nicely Designed Things</h1>
+          <h1 className="site-title">Beautifully Designed Objects</h1>
         </div>
         
         <div className="header-right">
@@ -358,6 +358,7 @@ function App() {
           country={country}
           onResultsChange={setResultCount}
           sortMethod={sortMethod}
+          onClearFilters={clearFilters}
         />
       </main>
     </div>

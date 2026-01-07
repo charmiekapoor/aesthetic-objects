@@ -333,6 +333,28 @@
   background-attachment: fixed;
 }
 
+.scattered-gallery.scattered-empty {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 20px;
+  overflow: hidden;
+}
+
+.scattered-gallery.scattered-empty .gallery-empty-state.scattered {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: min(80vw, 520px);
+  padding: 32px 28px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
 .scatter-controls {
   position: fixed;
   left: 50%;
@@ -578,4 +600,105 @@
   .theme-list .list-item-price {
     font-size: 0.8rem;
   }
+}
+
+.gallery-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+  color: var(--text-muted);
+  padding: 32px 24px;
+  margin: 0 auto;
+  max-width: 620px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.gallery-empty-state-content {
+  max-width: 480px;
+}
+
+.gallery-empty-state-icon {
+  font-size: 2rem;
+}
+
+.gallery-empty-state h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.gallery-empty-state p {
+  margin: 0;
+  line-height: 1.4;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+.gallery-empty-state-cta {
+  margin-top: 12px;
+  background: transparent;
+  border: none;
+  color: var(--accent-color);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.gallery-empty-state-cta:hover {
+  color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.gallery-empty-state.scattered p {
+  font-family: 'Fuzzy Bubbles', cursive;
+  letter-spacing: 0.02em;
+  font-size: 1.05rem;
+}
+
+.gallery-empty-state.scattered .gallery-empty-state-cta {
+  font-family: 'Fuzzy Bubbles', cursive;
+  letter-spacing: 0.04em;
+  font-size: 1rem;
+  text-transform: none;
+}
+
+.gallery-empty-state.grid {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: calc(100vh - 160px);
+}
+
+.gallery-empty-state.list {
+  width: 100%;
+  min-height: calc(100vh - 130px);
+}
+
+.gallery-empty-state.scattered {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(80vw, 520px);
+  padding: 32px 28px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  z-index: 1;
 }
