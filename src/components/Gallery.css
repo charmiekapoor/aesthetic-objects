@@ -320,7 +320,7 @@
   width: 100%;
   min-height: 300vh;
   height: auto;
-  padding: 220px 0 120px;
+  padding: 220px 0 180px;
   overflow: visible;
   z-index: 0;
   /* Soft paper texture background - warm off-white with organic grain */
@@ -335,6 +335,43 @@
   background-size: 40px 40px, 40px 40px, 500px 500px;
   background-position: 0 0, 0 0, 0 0;
   background-attachment: fixed;
+}
+
+.scatter-controls {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  padding: 0;
+  z-index: 200;
+}
+
+.scatter-controls button {
+  border: 1px solid var(--border-color);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.92);
+  min-width: 120px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'Fuzzy Bubbles', cursive;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.scatter-controls button:hover,
+.scatter-controls button:focus-visible {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
 }
 
 .scattered-item {
@@ -360,6 +397,33 @@
 
 .scattered-item:hover .scattered-image-wrapper {
   box-shadow: 0 0 40px var(--deco-color-1), 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+.scattered-image-label {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  font-family: 'Fuzzy Bubbles', cursive;
+  font-size: 14px;
+  font-weight: 700;
+  color: #66594F;
+  white-space: nowrap;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.scattered-item:hover .scattered-image-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.scattered-image-wrapper:hover .scattered-image-label {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .scattered-image-wrapper::before {

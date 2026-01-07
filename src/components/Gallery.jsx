@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, useScroll, useVelocity } from 'framer-motion';
 import { galleryImages } from '../data/images';
 import ImageModal from './ImageModal';
+import { Refresh, Shuffle } from 'iconoir-react';
 import './Gallery.css';
 
 // Configuration
@@ -93,6 +94,9 @@ const formatPrice = (price, showConversion = true) => {
   return priceStr;
 };
 
+const SCATTER_SCALE = 0.8;
+const SCATTER_PACKING = 0.85;
+
 const FALLBACK_POSITION = {
   top: 50,
   left: 48,
@@ -176,13 +180,13 @@ function ListItem({ image, onClick, isLast }) {
 }
 
 // Generate organic scattered positions without overlapping
-const generatePositions = (count) => {
+const generatePositions = (count, seedOffset = 0) => {
   const positions = [];
   const actualCount = Math.min(count, MAX_IMAGES);
   const rotations = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
 
   // Seeded random for consistent layout
-  let seed = 42;
+  let seed = 42 + seedOffset;
   const seededRandom = () => {
     seed = (seed * 9301 + 49297) % 233280;
     return seed / 233280;
@@ -218,7 +222,7 @@ const generatePositions = (count) => {
   }
 
   const totalRows = Math.max(rowIndex, 1);
-  const verticalSpacing = 100 / totalRows;
+  const verticalSpacing = (100 / totalRows) * SCATTER_PACKING;
 
   // Shuffle cells to randomize grid assignment while keeping spacing
   for (let i = cells.length - 1; i > 0; i--) {
@@ -239,20 +243,21 @@ const generatePositions = (count) => {
     const baseTop = row * verticalSpacing + Math.min(verticalSpacing * 0.15, 6);
     
     // Controlled scatter with limited spread
-    const scatterX = (seededRandom() - 0.5) * (colWidth * (isMobile ? 0.08 : 0.3));
-    const scatterY = (seededRandom() - 0.5) * (verticalSpacing * 0.6);
+    const scatterX = (seededRandom() - 0.5) * (colWidth * (isMobile ? 0.08 : 0.3)) * SCATTER_PACKING;
+    const scatterY = (seededRandom() - 0.5) * (verticalSpacing * 0.6) * SCATTER_PACKING;
     
     const left = Math.min(Math.max(baseLeft + scatterX, isMobile ? 4 : 3), isMobile ? 96 : 97);
     const top = Math.min(Math.max(baseTop + scatterY, isMobile ? 2 : 1), isMobile ? 98 : 98);
     
     const rotate = rotations[Math.floor(seededRandom() * rotations.length)];
     const widthNum = getWidthForPosition();
+    const scaledWidth = widthNum * SCATTER_SCALE;
 
     positions.push({
       top,
-      left: left - (widthNum / 2), 
-      width: `${widthNum}%`,
-      widthNum,
+      left: left - (scaledWidth / 2), 
+      width: `${scaledWidth}%`,
+      widthNum: scaledWidth,
       rotate,
       zIndex: Math.floor(seededRandom() * 3) + 1
     });
@@ -345,6 +350,11 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onTouchSt
       onTouchStart={(e) => onTouchStart && onTouchStart(e, image.id)}
       onClick={() => onClick(image)}
     >
+      {image.name && (
+        <div className="scattered-image-label">
+          <span>{image.name}</span>
+        </div>
+      )}
       <motion.div 
         className="scattered-image-wrapper"
         animate={isDragging ? { y: 0, scale: 1 } : {
@@ -406,14 +416,36 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
       id: img.id,
     }));
   });
+  const baselinePositionsRef = useRef([]);
 
-  const regeneratePositions = useCallback(() => {
-    const generated = generatePositions(displayedImages.length);
-    setPositions(displayedImages.map((img, index) => ({
+  const generateAndApplyPositions = useCallback((seedOffset = 0, storeBaseline = false) => {
+    const generated = generatePositions(displayedImages.length, seedOffset);
+    const updated = displayedImages.map((img, index) => ({
       ...generated[index],
       id: img.id,
-    })));
+    }));
+    setPositions(updated);
+    if (storeBaseline) {
+      baselinePositionsRef.current = updated.map((item) => ({ ...item }));
+    }
   }, [displayedImages]);
+
+  const regeneratePositions = useCallback(() => {
+    generateAndApplyPositions(0, true);
+  }, [generateAndApplyPositions]);
+
+  const handleShuffle = useCallback(() => {
+    const seedOffset = Math.floor(Math.random() * 100000);
+    generateAndApplyPositions(seedOffset, false);
+  }, [generateAndApplyPositions]);
+
+  const handleResetScatter = useCallback(() => {
+    if (baselinePositionsRef.current.length) {
+      setPositions(baselinePositionsRef.current.map(pos => ({ ...pos })));
+    } else {
+      generateAndApplyPositions(0, true);
+    }
+  }, [generateAndApplyPositions]);
 
   useEffect(() => {
     regeneratePositions();
@@ -663,6 +695,17 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
           );
         })}
       </section>
+
+      <div className="scatter-controls">
+        <button type="button" onClick={handleShuffle}>
+          <Shuffle width={16} height={16} strokeWidth={1.8} />
+          <span>Shuffle</span>
+        </button>
+        <button type="button" onClick={handleResetScatter}>
+          <Refresh width={16} height={16} strokeWidth={1.8} />
+          <span>Reset</span>
+        </button>
+      </div>
 
       {selectedImage && (
         <ImageModal 
