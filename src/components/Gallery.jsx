@@ -144,13 +144,18 @@ function GridItem({ image, onClick }) {
 }
 
 // List Item Component - Minimal row-based layout
-function ListItem({ image, onClick, isLast }) {
+function ListItem({ image, onClick, isLast, onHover, onClickSound }) {
   const priceData = image.price ? formatPrice(image.price) : null;
   
   return (
     <article
       className={`list-item ${isLast ? 'last' : ''}`}
-      onClick={() => onClick(image)}
+      onClick={() => {
+        onClickSound?.();
+        onClick(image);
+      }}
+      onPointerEnter={() => onHover?.()}
+      onMouseEnter={() => onHover?.()}
     >
       <div className="list-item-left">
         <div className="list-item-image">
@@ -457,6 +462,7 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
   }, [regeneratePositions]);
 
   const [selectedImage, setSelectedImage] = useState(null);
+  const audioContextRef = useRef(null);
 
   const fallbackPositions = useMemo(() => generatePositions(displayedImages.length), [displayedImages.length]);
 
@@ -586,6 +592,53 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
     setDragging(null);
   }, []);
 
+  const playListSound = useCallback(({
+    frequency = 840,
+    endFrequency,
+    duration = 0.12,
+    startGain = 0.05,
+    targetGain = 0.0001,
+  } = {}) => {
+    if (typeof window === 'undefined') return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    let context = audioContextRef.current;
+    if (!context) {
+      context = new AudioCtx();
+      audioContextRef.current = context;
+    }
+
+    if (context.state === 'suspended') {
+      context.resume().catch(() => {});
+    }
+
+    const now = context.currentTime;
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, now);
+    if (endFrequency && endFrequency !== frequency) {
+      oscillator.frequency.exponentialRampToValueAtTime(endFrequency, now + duration);
+    }
+
+    gainNode.gain.setValueAtTime(startGain, now);
+    gainNode.gain.exponentialRampToValueAtTime(targetGain, now + duration);
+
+    oscillator.connect(gainNode).connect(context.destination);
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  }, []);
+
+  const playListHoverSound = useCallback(() => {
+    playListSound({ frequency: 840, duration: 0.12, startGain: 0.05 });
+  }, [playListSound]);
+
+  const playListClickSound = useCallback(() => {
+    playListSound({ frequency: 780, endFrequency: 640, duration: 0.14, startGain: 0.065 });
+  }, [playListSound]);
+
   const handleImageClick = useCallback((image) => {
     // Only open modal if we didn't drag (for scattered view)
     if (viewMode === 'scattered' && hasDragged.current) {
@@ -649,6 +702,8 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
               image={image}
               onClick={handleImageClick}
               isLast={index === displayedImages.length - 1}
+              onHover={playListHoverSound}
+              onClickSound={playListClickSound}
             />
           ))}
         </section>

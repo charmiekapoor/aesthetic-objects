@@ -502,7 +502,7 @@ export const galleryImages = [
     color: '',
     howAcquired: '',
     from: '',
-    category: 'Live',
+    category: 'Love',
     story: "My brother and I used to share a room while growing up. When we were 4 & 8yo, parents said we're old enough to decide the decor of our own room. They took us to local stores and we picked this.\n\nYears later, I still use the same curtain in my house. Amazing that the quality is insane. It's travelled with me to 5 cities, washed multiple times, been through weathers. I wish I knew which store it was, but a reminder to go to your local vendors more often :)",
     price: '',
     link: ''
@@ -594,7 +594,7 @@ export const galleryImages = [
     howAcquired: 'Bought',
     from: 'USA',
     category: 'Live',
-    story: '',
+    story: 'TMI',
     price: '$9',
     link: 'https://mybillie.com/products/razor-starter-kit'
   },
@@ -604,7 +604,7 @@ export const galleryImages = [
     name: 'Lazy Smiski',
     brand: 'Smiski',
     color: 'Green',
-    howAcquired: 'Bought',
+    howAcquired: '',
     from: 'Singapore',
     category: 'Play',
     story: "Tiny reminder that not everything needs a purpose. Gives me the smiles. Streets of Singapore – these are big in east asia. have a surprose element also.",
@@ -630,7 +630,7 @@ export const galleryImages = [
     name: 'XBox controller pendrive',
     brand: 'Microsoft',
     color: 'Black, Multicolor',
-    howAcquired: 'Earned',
+    howAcquired: '',
     from: 'India',
     category: 'Work',
     story: 'Swag for joining Microsoft',
@@ -659,7 +659,8 @@ export const categories = [
   'Work',
   'Play',
   'Eat',
-  'Wear'
+  'Wear',
+  'Love'
 ];
 
 // Acquisition types
