@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import Gallery from './components/Gallery';
 import { 
-  NavArrowDown, 
-  DotsGrid3x3, 
-  FrameAltEmpty, 
-  MenuScale,
-  Bag,
-  Gamepad,
-  PizzaSlice,
-  Sandals,
-  Sofa,
-  Droplet
+ NavArrowDown, 
+ DotsGrid3x3, 
+ FrameAltEmpty, 
+ MenuScale,
+ Bag,
+ Gamepad,
+ PizzaSlice,
+ Sandals,
+ Sofa,
+ Droplet
 } from 'iconoir-react';
 import './App.css';
 
@@ -25,6 +25,14 @@ const categoryIcons = {
   Wear: Sandals,
   Care: CareIcon
 };
+
+const sortOptions = [
+  { value: 'a-z', label: 'A to Z' },
+  { value: 'z-a', label: 'Z to A' },
+  { value: 'most-least', label: 'Most to least expensive' },
+  { value: 'least-most', label: 'Least to most expensive' },
+  { value: 'vibes', label: 'Vibes' },
+];
 
 // Country flag emojis
 const countryFlags = {
@@ -64,6 +72,11 @@ function App() {
   const [color, setColor] = useState('All');
   const [country, setCountry] = useState('All');
   const [openDropdown, setOpenDropdown] = useState(null); // 'acquisition' | 'color' | 'country' | null
+  const [resultCount, setResultCount] = useState(0);
+  const [sortMethod, setSortMethod] = useState('vibes');
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const sortMenuRef = useRef(null);
+  const showSortControls = viewMode === 'grid' || viewMode === 'list';
 
   const categories = ['Live', 'Work', 'Play', 'Eat', 'Wear', 'Care'];
   const acquisitionOptions = ['All', 'Bought', 'Gifted', 'Earned'];
@@ -74,6 +87,15 @@ function App() {
 
   const toggleDropdown = (dropdown) => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
+  };
+
+  const handleSortToggle = () => {
+    setSortMenuOpen((prev) => !prev);
+  };
+
+  const handleSortSelect = (value) => {
+    setSortMethod(value);
+    setSortMenuOpen(false);
   };
 
   // Close dropdown when clicking outside
@@ -87,6 +109,22 @@ function App() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const handleOutside = (event) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(event.target)) {
+        setSortMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!showSortControls) {
+      setSortMenuOpen(false);
+    }
+  }, [showSortControls]);
 
   const toggleCategory = (cat) => {
     setActiveCategories(prev => 
@@ -265,12 +303,61 @@ function App() {
       </div>
 
       <main>
+        <div className="canvas-meta">
+          <span className="result-count">{resultCount} results</span>
+          {showSortControls && (
+            <>
+              <span className="meta-divider" aria-hidden="true">•</span>
+              <div className="sort-selector" ref={sortMenuRef}>
+                <button
+                  type="button"
+                  className="sort-trigger"
+                  onClick={handleSortToggle}
+                  aria-haspopup="true"
+                  aria-expanded={sortMenuOpen}
+                >
+                  <span className="sort-label">
+                    SORT BY 
+                    <span className="sort-value">
+                      {sortOptions.find((option) => option.value === sortMethod)?.label ?? 'Curated'}
+                    </span>
+                  </span>
+                  <NavArrowDown
+                    width={14}
+                    height={14}
+                    strokeWidth={1.8}
+                    color="currentColor"
+                    className={`sort-chevron ${sortMenuOpen ? 'open' : ''}`}
+                  />
+                </button>
+
+                {sortMenuOpen && (
+                  <div className="sort-menu">
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        className={`sort-menu-item ${sortMethod === option.value ? 'active' : ''}`}
+                        onClick={() => handleSortSelect(option.value)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
         <Gallery 
           viewMode={viewMode} 
           activeCategories={activeCategories}
           acquisition={acquisition}
           color={color}
           country={country}
+          onResultsChange={setResultCount}
+          sortMethod={sortMethod}
         />
       </main>
     </div>

@@ -103,6 +103,47 @@ const formatPrice = (price, showConversion = true) => {
   return priceStr;
 };
 
+const extractNumericValue = (value) => {
+  if (value == null) return null;
+  const sanitized = value.replace(/,/g, '');
+  const match = sanitized.match(/-?\d+(\.\d+)?/);
+  return match ? parseFloat(match[0]) : null;
+};
+
+const parsePriceToINR = (price) => {
+  if (!price) return null;
+  const raw = price.toString().trim();
+  const lower = raw.toLowerCase();
+  const numeric = extractNumericValue(raw);
+  if (numeric == null) return null;
+
+  if (/^rs\.?/i.test(raw) || lower.startsWith('rs')) {
+    return numeric;
+  }
+
+  if (raw.startsWith('$')) {
+    return numeric * conversionRates.USD;
+  }
+
+  if (raw.startsWith('€') || lower.startsWith('euro')) {
+    return numeric * conversionRates.EUR;
+  }
+
+  if (raw.startsWith('£')) {
+    return numeric * conversionRates.GBP;
+  }
+
+  if (lower.includes('yen') || raw.startsWith('¥')) {
+    return numeric * conversionRates.JPY;
+  }
+
+  if (lower.includes('lkr')) {
+    return numeric * conversionRates.LKR;
+  }
+
+  return numeric;
+};
+
 const SCATTER_SCALE = 0.8;
 const SCATTER_PACKING = 0.85;
 
@@ -395,10 +436,10 @@ function ParallaxItem({ image, position, index, dragging, onMouseDown, onTouchSt
   );
 }
 
-function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All', color = 'All', country = 'All' }) {
+function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All', color = 'All', country = 'All', onResultsChange, sortMethod = 'creator' }) {
   const baseGalleryImages = useMemo(() => galleryImages.slice(0, MAX_IMAGES), []);
 
-  const displayedImages = useMemo(() => {
+  const filteredImages = useMemo(() => {
     return baseGalleryImages.filter(image => {
       if (activeCategories.length > 0 && !activeCategories.includes(image.category)) {
         return false;
@@ -422,6 +463,51 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
       return true;
     });
   }, [baseGalleryImages, activeCategories, acquisition, color, country]);
+
+  const displayedImages = useMemo(() => {
+    if (sortMethod === 'vibes') {
+      return filteredImages;
+    }
+
+    const sorted = [...filteredImages];
+    if (sortMethod === 'most-least') {
+      sorted.sort((a, b) => {
+        const aValue = parsePriceToINR(a.price);
+        const bValue = parsePriceToINR(b.price);
+        const aNum = aValue ?? Number.NEGATIVE_INFINITY;
+        const bNum = bValue ?? Number.NEGATIVE_INFINITY;
+        return bNum - aNum;
+      });
+    } else if (sortMethod === 'least-most') {
+      sorted.sort((a, b) => {
+        const aValue = parsePriceToINR(a.price);
+        const bValue = parsePriceToINR(b.price);
+        const aNum = aValue ?? Number.POSITIVE_INFINITY;
+        const bNum = bValue ?? Number.POSITIVE_INFINITY;
+        return aNum - bNum;
+      });
+    } else if (sortMethod === 'a-z') {
+      sorted.sort((a, b) => {
+        const aName = (a.name || '').toLowerCase();
+        const bName = (b.name || '').toLowerCase();
+        return aName.localeCompare(bName, 'en', { sensitivity: 'base' });
+      });
+    } else if (sortMethod === 'z-a') {
+      sorted.sort((a, b) => {
+        const aName = (a.name || '').toLowerCase();
+        const bName = (b.name || '').toLowerCase();
+        return bName.localeCompare(aName, 'en', { sensitivity: 'base' });
+      });
+    }
+
+    return sorted;
+  }, [filteredImages, sortMethod]);
+
+  useEffect(() => {
+    if (typeof onResultsChange === 'function') {
+      onResultsChange(displayedImages.length);
+    }
+  }, [displayedImages.length, onResultsChange]);
   
   const [positions, setPositions] = useState(() => {
     const generated = generatePositions(displayedImages.length);

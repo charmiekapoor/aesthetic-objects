@@ -189,10 +189,6 @@
   position: relative;
 }
 
-.list-item:first-child {
-  border-top: 1px solid var(--border-color);
-}
-
 .list-item.last {
   border-bottom: 1px solid var(--border-color);
 }

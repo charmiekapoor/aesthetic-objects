@@ -123,6 +123,12 @@ const formatPrice = (price) => {
   return { main: p, converted: null };
 };
 
+const formatAcquisitionLabel = (value) => {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
+
 function ImageModal({ image, onClose, onNavigate }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -140,6 +146,13 @@ function ImageModal({ image, onClose, onNavigate }) {
   }, [onClose, onNavigate]);
 
   if (!image) return null;
+
+  const acquisitionLabel = formatAcquisitionLabel(image.howAcquired);
+  const acquisitionIcon = acquisitionLabel === 'Gifted'
+    ? '🎁'
+    : acquisitionLabel === 'Earned'
+      ? '🏆'
+      : '🛒';
 
   const hasDetails = image.name || image.story || image.price;
   const itemCode = `#${image.id.toString().padStart(3, '0')}`;
@@ -187,9 +200,9 @@ function ImageModal({ image, onClose, onNavigate }) {
 
               {/* Pills with emojis */}
               <div className="modal-header">
-                {image.howAcquired && (
-                  <span className={`modal-badge ${image.howAcquired.toLowerCase()}`}>
-                    {image.howAcquired === 'Gifted' ? '🎁' : image.howAcquired === 'Earned' ? '🏆' : '🛒'} {image.howAcquired}
+                {acquisitionLabel && (
+                  <span className={`modal-badge ${acquisitionLabel.toLowerCase()}`}>
+                    {acquisitionIcon} {acquisitionLabel}
                   </span>
                 )}
                 {image.from && (
