@@ -27,49 +27,97 @@ const formatINR = (num) => {
   return num.toLocaleString('en-IN');
 };
 
+const parseAmountValue = (raw) => {
+  const cleaned = raw.replace(/,/g, '').trim();
+  const value = parseFloat(cleaned);
+  return Number.isNaN(value) ? null : value;
+};
+
+const formatLocalizedNumber = (value, locale, options = {}) => {
+  if (value === null) return null;
+  return value.toLocaleString(locale, options);
+};
+
 // Format price with proper currency icons and INR conversion
 const formatPrice = (price) => {
   if (!price) return null;
-  let p = price.trim();
+  const p = price.trim();
   
   // Already in INR
   if (p.toLowerCase().startsWith('rs')) {
-    return { main: p.replace(/rs\.?\s?/i, '₹'), converted: null };
+    const cleanedValue = p.replace(/rs\.?\s*/i, '');
+    const amount = parseAmountValue(cleanedValue);
+    const formatted = amount !== null
+      ? `₹${formatLocalizedNumber(amount, 'en-IN', { maximumFractionDigits: 0 })}`
+      : `₹${cleanedValue}`;
+
+    return { main: formatted, converted: null };
   }
   
   // USD
   if (p.startsWith('$')) {
-    const amount = parseFloat(p.replace('$', '').replace(/,/g, '').trim());
-    const inrAmount = Math.round(amount * conversionRates.USD);
-    return { main: `$${amount}`, converted: `₹${formatINR(inrAmount)}` };
+    const cleanedValue = p.replace('$', '');
+    const amount = parseAmountValue(cleanedValue);
+    const formattedMain = amount !== null
+      ? `$${formatLocalizedNumber(amount, 'en-US', { maximumFractionDigits: 2 })}`
+      : `$${cleanedValue}`;
+    const inrAmount = amount !== null ? Math.round(amount * conversionRates.USD) : null;
+    return { main: formattedMain, converted: inrAmount !== null ? `₹${formatINR(inrAmount)}` : null };
   }
   
-  // EUR
+  // EUR symbol
   if (p.startsWith('€')) {
-    const amount = parseFloat(p.replace('€', '').replace(/,/g, '').trim());
-    const inrAmount = Math.round(amount * conversionRates.EUR);
-    return { main: `€${amount}`, converted: `₹${formatINR(inrAmount)}` };
+    const cleanedValue = p.replace('€', '');
+    const amount = parseAmountValue(cleanedValue);
+    const formattedMain = amount !== null
+      ? `€${formatLocalizedNumber(amount, 'de-DE', { maximumFractionDigits: 2 })}`
+      : `€${cleanedValue}`;
+    const inrAmount = amount !== null ? Math.round(amount * conversionRates.EUR) : null;
+    return { main: formattedMain, converted: inrAmount !== null ? `₹${formatINR(inrAmount)}` : null };
   }
   
+  // "euro" text
+  if (p.toLowerCase().startsWith('euro')) {
+    const cleanedValue = p.replace(/euro/i, '');
+    const amount = parseAmountValue(cleanedValue);
+    const formattedMain = amount !== null
+      ? `€${formatLocalizedNumber(amount, 'de-DE', { maximumFractionDigits: 2 })}`
+      : `€${cleanedValue}`;
+    const inrAmount = amount !== null ? Math.round(amount * conversionRates.EUR) : null;
+    return { main: formattedMain, converted: inrAmount !== null ? `₹${formatINR(inrAmount)}` : null };
+  }
+
   // GBP
   if (p.startsWith('£')) {
-    const amount = parseFloat(p.replace('£', '').replace(/,/g, '').trim());
-    const inrAmount = Math.round(amount * conversionRates.GBP);
-    return { main: `£${amount}`, converted: `₹${formatINR(inrAmount)}` };
+    const cleanedValue = p.replace('£', '');
+    const amount = parseAmountValue(cleanedValue);
+    const formattedMain = amount !== null
+      ? `£${formatLocalizedNumber(amount, 'en-GB', { maximumFractionDigits: 2 })}`
+      : `£${cleanedValue}`;
+    const inrAmount = amount !== null ? Math.round(amount * conversionRates.GBP) : null;
+    return { main: formattedMain, converted: inrAmount !== null ? `₹${formatINR(inrAmount)}` : null };
   }
   
   // JPY
   if (p.toLowerCase().includes('yen')) {
-    const amount = parseFloat(p.replace(/yen/i, '').replace(/,/g, '').trim());
-    const inrAmount = Math.round(amount * conversionRates.JPY);
-    return { main: `¥${amount}`, converted: `₹${formatINR(inrAmount)}` };
+    const cleanedValue = p.replace(/yen/i, '');
+    const amount = parseAmountValue(cleanedValue);
+    const formattedMain = amount !== null
+      ? `¥${formatLocalizedNumber(amount, 'ja-JP', { maximumFractionDigits: 0 })}`
+      : `¥${cleanedValue}`;
+    const inrAmount = amount !== null ? Math.round(amount * conversionRates.JPY) : null;
+    return { main: formattedMain, converted: inrAmount !== null ? `₹${formatINR(inrAmount)}` : null };
   }
   
   // LKR
   if (p.toLowerCase().includes('lkr')) {
-    const amount = parseFloat(p.replace(/lkr/i, '').replace(/,/g, '').trim());
-    const inrAmount = Math.round(amount * conversionRates.LKR);
-    return { main: `LKR ${amount}`, converted: `₹${formatINR(inrAmount)}` };
+    const cleanedValue = p.replace(/lkr/i, '');
+    const amount = parseAmountValue(cleanedValue);
+    const formattedMain = amount !== null
+      ? `LKR ${formatLocalizedNumber(amount, 'en-IN', { maximumFractionDigits: 0 })}`
+      : `LKR ${cleanedValue}`;
+    const inrAmount = amount !== null ? Math.round(amount * conversionRates.LKR) : null;
+    return { main: formattedMain, converted: inrAmount !== null ? `₹${formatINR(inrAmount)}` : null };
   }
   
   return { main: p, converted: null };
@@ -157,7 +205,47 @@ function ImageModal({ image, onClose, onNavigate }) {
               {/* Memory / Story */}
               {image.story && (
                 <div className="modal-story">
-                  <p>{image.story}</p>
+                  {image.story
+                    .split('\n\n')
+                    .map((paragraph, index) => {
+                      const words = image.id === 10
+                        ? paragraph.split(/(aviavi)/gi)
+                        : [paragraph];
+
+                      if (image.id === 20 && index === 0) {
+                        return (
+                          <p key="nivarah-intro">
+                            A friend Kamlesh runs a website with artisnal objects –{' '}
+                            <a
+                              href="https://nivarah.com"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="story-link"
+                            >
+                              Nivarah
+                            </a>. I do make matcha frequently at home, he gave me a sweet discount so got this ceramic bowl. Have been making more matcha recipes too since (baked a delicious matcha cake).
+                          </p>
+                        );
+                      }
+
+                      return (
+                        <p key={String(index)}>
+                          {words.map((segment, segmentIndex) =>
+                            image.id === 10 && segment.toLowerCase() === 'aviavi' ? (
+                              <a
+                                key={`link-${segmentIndex}`}
+                                href="https://x.com/aviaviaviii"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="story-link"
+                              >Avi</a>
+                            ) : (
+                              segment
+                            )
+                          )}
+                        </p>
+                      );
+                    })}
                 </div>
               )}
 

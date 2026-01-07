@@ -60,6 +60,15 @@ const formatPrice = (price, showConversion = true) => {
       ? { main: formattedMain, converted: `₹${formatINR(inrAmount)}` }
       : formattedMain;
   }
+
+  if (priceStr.toLowerCase().startsWith('euro')) {
+    const amount = parseFloat(priceStr.toLowerCase().replace(/euro/i, '').replace(/,/g, '').trim());
+    const formattedMain = `€${formatNumberWithCommas(amount, 'de-DE', { maximumFractionDigits: 2 })}`;
+    const inrAmount = Math.round(amount * conversionRates.EUR);
+    return showConversion
+      ? { main: formattedMain, converted: `₹${formatINR(inrAmount)}` }
+      : formattedMain;
+  }
   
   // £50 → £50 (₹5,300)
   if (priceStr.startsWith('£')) {

@@ -9,17 +9,21 @@ import {
   Gamepad,
   PizzaSlice,
   Sandals,
-  Sofa
+  Sofa,
+  Droplet
 } from 'iconoir-react';
 import './App.css';
 
 // Category icons mapping
+const CareIcon = ({ ...props }) => <Droplet {...props} strokeWidth={1.8} />;
+
 const categoryIcons = {
   Live: Sofa,
   Work: Bag,
   Play: Gamepad,
   Eat: PizzaSlice,
-  Wear: Sandals
+  Wear: Sandals,
+  Care: CareIcon
 };
 
 // Country flag emojis
@@ -61,7 +65,7 @@ function App() {
   const [country, setCountry] = useState('All');
   const [openDropdown, setOpenDropdown] = useState(null); // 'acquisition' | 'color' | 'country' | null
 
-  const categories = ['Live', 'Work', 'Play', 'Eat', 'Wear'];
+  const categories = ['Live', 'Work', 'Play', 'Eat', 'Wear', 'Care'];
   const acquisitionOptions = ['All', 'Bought', 'Gifted', 'Earned'];
   const colorOptions = ['All', 'White', 'Black', 'Brown', 'Blue', 'Green', 'Red', 'Yellow', 'Orange', 'Gold', 'Beige', 'Grey', 'Pink', 'Purple', 'Multicolor'];
   const countryOptions = ['All', 'India', 'USA', 'Japan', 'France', 'Singapore', 'Sri Lanka', 'Czech Republic'];
@@ -241,21 +245,21 @@ function App() {
             onClick={() => setViewMode('grid')}
             aria-label="Grid view"
           >
-            <DotsGrid3x3 width={16} height={16} strokeWidth={1.8} />
+            <DotsGrid3x3 width={16} height={16} strokeWidth={2} />
           </button>
           <button 
             className={`view-btn ${viewMode === 'scattered' ? 'active' : ''}`}
             onClick={() => setViewMode('scattered')}
             aria-label="Scattered view"
           >
-            <FrameAltEmpty width={16} height={16} strokeWidth={1.8} />
+            <FrameAltEmpty width={16} height={16} strokeWidth={2} />
           </button>
           <button 
             className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
             onClick={() => setViewMode('list')}
             aria-label="List view"
           >
-            <MenuScale width={16} height={16} strokeWidth={1.8} />
+            <MenuScale width={16} height={16} strokeWidth={2} />
           </button>
         </div>
       </div>

@@ -73,7 +73,7 @@ export const galleryImages = [
     color: "Orange, Multicolor",
     howAcquired: "Gifted",
     from: "USA",
-    category: "Wear",
+    category: "Care",
     story: "Walked into the SFMOMA Design Store with my best friend after a great brunch. We both picked up claw clips and she gifted this one to me. I would never have spent $20+ on a clip myself, so thank you for that. Love you, Pallavi!",
     price: "$22",
     link: "https://www.citybirddetroit.com/products/carolyn-suzuki-hair-claw"
@@ -191,7 +191,7 @@ export const galleryImages = [
     howAcquired: "Gifted",
     from: "India",
     category: "Eat",
-    story: "Friend gifted me just like that. she knows i love chai. no special occassion also.",
+    story: "A friend gifted me these on a random day just like that. No occasion. She knows I love chai 🥰",
     price: "rs 2100",
     link: "https://www.nicobar.com/products/galle-kulhar-set-of-4-1"
   },
@@ -218,7 +218,7 @@ export const galleryImages = [
     from: "India",
     category: "Live",
     story: "Got this to read books at night in bed. The light is adjustable, which makes it easy on the eyes.\n\nIt has a very industrial aesthetic and works well with almost any kind of decor.",
-    price: "Rs 3990",
+    price: "Rs 1790",
     link: "https://www.ikea.com/in/en/p/askmuller-table-lamp-dimmable-light-grey-10576247/"
   },
   {
@@ -374,7 +374,7 @@ export const galleryImages = [
     from: "India",
     category: "Live",
     story: "Got a HUGE discount on this while buying an Apple Watch for my brother. Also goes without saying, has a fantastic design & sound quality.",
-    price: "15,999",
+    price: "Rs 15,999",
     link: "https://www.marshall.com/in/en/product/emberton-ii"
   },
   {

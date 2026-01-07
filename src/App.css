@@ -431,7 +431,7 @@
 /* Theme-specific view toggle styling */
 .theme-list .view-toggles {
   border-color: var(--accent-color);
-  box-shadow: 0 0 12px var(--deco-color-1);
+  box-shadow: none;
 }
 
 .theme-list .view-btn.active {

@@ -213,6 +213,11 @@
   margin: 0;
 }
 
+.story-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
 /* Footer meta */
 .modal-footer {
   margin-top: auto;
