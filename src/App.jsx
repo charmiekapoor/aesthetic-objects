@@ -156,7 +156,32 @@ function App() {
         </div>
         
         <div className="header-right">
-          <a href="#about" className="nav-link about-link">About</a>
+          <div className="view-toggles">
+            <button 
+              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+              aria-label="Grid view"
+              data-tooltip="Grid view"
+            >
+              <DotsGrid3x3 width={16} height={16} strokeWidth={2} />
+            </button>
+            <button 
+              className={`view-btn ${viewMode === 'scattered' ? 'active' : ''}`}
+              onClick={() => setViewMode('scattered')}
+              aria-label="Canvas view"
+              data-tooltip="Canvas view"
+            >
+              <FrameAltEmpty width={16} height={16} strokeWidth={2} />
+            </button>
+            <button 
+              className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+              onClick={() => setViewMode('list')}
+              aria-label="List view"
+              data-tooltip="List view"
+            >
+              <MenuScale width={16} height={16} strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -277,34 +302,13 @@ function App() {
           )}
         </div>
 
-        <div className="view-toggles">
-          <button 
-            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-            onClick={() => setViewMode('grid')}
-            aria-label="Grid view"
-          >
-            <DotsGrid3x3 width={16} height={16} strokeWidth={2} />
-          </button>
-          <button 
-            className={`view-btn ${viewMode === 'scattered' ? 'active' : ''}`}
-            onClick={() => setViewMode('scattered')}
-            aria-label="Scattered view"
-          >
-            <FrameAltEmpty width={16} height={16} strokeWidth={2} />
-          </button>
-          <button 
-            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-            onClick={() => setViewMode('list')}
-            aria-label="List view"
-          >
-            <MenuScale width={16} height={16} strokeWidth={2} />
-          </button>
-        </div>
       </div>
 
       <main>
         <div className="canvas-meta">
-          <span className="result-count">{resultCount} results</span>
+          <span className="result-count">
+            {resultCount} {resultCount === 1 ? 'object' : 'objects'}
+          </span>
           {showSortControls && (
             <>
               <span className="meta-divider" aria-hidden="true">•</span>

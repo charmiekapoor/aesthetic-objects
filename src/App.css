@@ -146,6 +146,20 @@
   white-space: nowrap;
   flex: 1;
   line-height: 1;
+  position: relative;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+/* Grid theme only: underline on hover */
+.theme-grid .site-title:hover {
+  color: transparent;
+  background-image: linear-gradient(120deg, #22AEA2, #388CF9, #7E40C4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
 }
 
 /* Theme-specific title adjustments */
@@ -228,7 +242,7 @@
   border-radius: 4px;
   text-transform: uppercase;
   font-size: 12px;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.01em;
 }
 
 .theme-list .filter-pill.active {
@@ -415,6 +429,8 @@
   cursor: pointer;
   color: var(--text-muted);
   transition: all 0.2s ease;
+  position: relative;
+  overflow: visible;
 }
 
 .view-btn:hover {
@@ -426,6 +442,34 @@
   background: var(--card-bg);
   color: var(--accent-color);
   box-shadow: 0 1px 4px var(--shadow-color);
+}
+
+.view-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.view-btn:hover::after,
+.view-btn:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 2px);
 }
 
 /* Theme-specific view toggle styling */
