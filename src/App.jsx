@@ -25,6 +25,8 @@ function AboutModal({ onClose, viewMode, featured = [] }) {
     closeButtonRef.current?.focus();
   }, []);
 
+  const carouselItems = [...featured, ...featured];
+
   return (
     <div
       className={`about-modal-overlay about-modal-overlay--${viewMode}`}
@@ -44,34 +46,48 @@ function AboutModal({ onClose, viewMode, featured = [] }) {
         >
           <Xmark width={16} height={16} strokeWidth={2} />
         </button>
-        <h2 id="about-modal-title">Beautifully Designed Objects</h2>
+        <h2 id="about-modal-title">"The space around you is a reflection of your taste."</h2>
         <p id="about-modal-body">
-          A curated edit of objects that blend craftsmanship, functionality, and playful imagination.
-          Every piece is sourced with an eye for material honesty, timeless typography, and effortless wear.
+        I derive a lot of joy from the spaces and objects I live with. I like noticing how things are made, the small details someone cared enough to think through, and how those choices make all the difference.
         </p>
-        <ul className="about-modal__list">
-          <li>Slow-made furniture and ceramics with architected details.</li>
-          <li>Unique accessories built for daily rituals and memorable gatherings.</li>
-          <li>Globally sourced discoveries, handpicked for their narrative and tactility.</li>
-        </ul>
+        <p id="about-modal-body">
+        This is a collection of the beautifully designed objects I own today. None of them are here just to look nice. They all serve a purpose and get used often. If anything, this project is areminder that useful things can still be beautiful :)
+        </p>
+
+        <p id="about-modal-body">
+        A few photos of these objects in my space –
+        </p>
+       
         {featured.length > 0 && (
-          <div className="about-modal-gallery" aria-label="Featured objects">
-            {featured.map((item) => (
-              <figure key={item.id} className="about-modal-gallery-item">
-                <img
-                  src={item.src}
-                  alt={item.name || `Gallery item ${item.id}`}
-                  loading="lazy"
-                  draggable="false"
-                />
-                <figcaption>{item.name}</figcaption>
-              </figure>
-            ))}
+          <div className="about-modal-carousel" aria-label="Featured objects">
+            <div className="about-modal-carousel-track">
+              {carouselItems.map((item, index) => (
+                <figure
+                  key={`${item.id}-${index}`}
+                  className="about-modal-carousel-item"
+                >
+                  <img
+                    src={item.src}
+                    alt={item.name || `Gallery item ${item.id}`}
+                    loading="lazy"
+                    draggable="false"
+                  />
+                </figure>
+              ))}
+            </div>
+            <div className="about-modal-carousel-footer">
+              Made with a lot of love by{' '}
+              <a
+                href="https://x.com/charmiekapoor"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Charmie Kapoor.
+              </a>
+            </div>
           </div>
         )}
-        <p className="about-modal__footnote">
-          Tap the title to revisit this note when browsing on desktop.
-        </p>
+       
       </div>
     </div>
   );
@@ -102,7 +118,16 @@ const viewModes = [
   { key: 'scattered', label: 'Canvas view', Icon: FrameAltEmpty },
   { key: 'list', label: 'List view', Icon: MenuScale },
 ];
-const FEATURED_MODAL_IMAGES = galleryImages.slice(0, 5);
+const FEATURED_MODAL_IMAGES = [
+  { id: 'carousel-1', src: '/Carousel/IMG_0370.jpeg' },
+  { id: 'carousel-2', src: '/Carousel/IMG_0897.jpeg' },
+  { id: 'carousel-3', src: '/Carousel/IMG_2071.jpeg' },
+  { id: 'carousel-4', src: '/Carousel/IMG_2452.jpeg' },
+  { id: 'carousel-5', src: '/Carousel/IMG_2457.jpeg' },
+  { id: 'carousel-6', src: '/Carousel/IMG_2539.jpeg' },
+  { id: 'carousel-7', src: '/Carousel/IMG_3638.jpeg' },
+  { id: 'carousel-8', src: '/Carousel/IMG_5752.jpeg' },
+];
 // Country flag emojis
 const countryFlags = {
   'All': '🌍',
@@ -611,7 +636,7 @@ function App() {
         </div>
 
       </div>
-      {openDropdown && (
+      {!isDesktop && openDropdown && (
         <>
           <div
             className="dropdown-backdrop"
