@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './ImageModal.css';
 
@@ -145,6 +145,28 @@ function ImageModal({ image, onClose, onNavigate }) {
     };
   }, [onClose, onNavigate]);
 
+  const [isMobileSheet, setIsMobileSheet] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobileSheet(mediaQuery.matches);
+    update();
+    const listener = (event) => setIsMobileSheet(event.matches);
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', listener);
+    } else {
+      mediaQuery.addListener(listener);
+    }
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', listener);
+      } else {
+        mediaQuery.removeListener(listener);
+      }
+    };
+  }, []);
+
   if (!image) return null;
 
   const acquisitionLabel = formatAcquisitionLabel(image.howAcquired);
@@ -170,10 +192,10 @@ function ImageModal({ image, onClose, onNavigate }) {
       >
         <div className="modal-shell" onClick={(e) => e.stopPropagation()}>
           <motion.div 
-            className="modal-content"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className={`modal-content ${isMobileSheet ? 'modal-sheet' : ''}`}
+            initial={isMobileSheet ? { opacity: 1, y: 40 } : { opacity: 0, scale: 0.95, y: 20 }}
+            animate={isMobileSheet ? { opacity: 1, y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={isMobileSheet ? { opacity: 0, y: 40 } : { opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
           >
             <button className="close-btn" onClick={onClose} aria-label="Close modal">
@@ -301,6 +323,30 @@ function ImageModal({ image, onClose, onNavigate }) {
                 </div>
               </div>
             </div>
+            {isMobileSheet && (
+              <div className="modal-sheet-cta">
+                <button
+                  type="button"
+                  className="modal-sheet-cta-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate?.('prev');
+                  }}
+                >
+                  ← Previous
+                </button>
+                <button
+                  type="button"
+                  className="modal-sheet-cta-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate?.('next');
+                  }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
           </motion.div>
 
           <button

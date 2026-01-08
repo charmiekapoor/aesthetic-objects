@@ -702,3 +702,40 @@
   backdrop-filter: none;
   z-index: 1;
 }
+
+@media (max-width: 768px) {
+  .gallery-empty-state {
+    padding: 24px 16px;
+  }
+
+  .gallery-empty-state-icon {
+    font-size: 1.75rem;
+  }
+
+  .gallery-empty-state h2 {
+    font-size: 1.4rem;
+    white-space: normal;
+  }
+
+  .gallery-empty-state p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-empty-state-content {
+    padding: 0 4px;
+  }
+
+  .gallery-empty-state-icon {
+    font-size: 1.6rem;
+  }
+
+  .gallery-empty-state h2 {
+    font-size: 1.2rem;
+  }
+
+  .gallery-empty-state p {
+    font-size: 0.85rem;
+  }
+}

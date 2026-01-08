@@ -1,18 +1,81 @@
 import { useState, useEffect, useRef } from 'react';
 import Gallery from './components/Gallery';
+import { galleryImages } from './data/images';
 import { 
- NavArrowDown, 
- DotsGrid3x3, 
- FrameAltEmpty, 
- MenuScale,
- Bag,
- Gamepad,
- PizzaSlice,
- Sandals,
- Sofa,
- Droplet
+  NavArrowDown, 
+  DotsGrid3x3, 
+  FrameAltEmpty, 
+  MenuScale,
+  Bag,
+  Gamepad,
+  PizzaSlice,
+  Sandals,
+  Sofa,
+  Droplet,
+  Xmark
 } from 'iconoir-react';
 import './App.css';
+
+const DESKTOP_BREAKPOINT = 1024;
+
+function AboutModal({ onClose, viewMode, featured = [] }) {
+  const closeButtonRef = useRef(null);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+
+  return (
+    <div
+      className={`about-modal-overlay about-modal-overlay--${viewMode}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="about-modal-title"
+      aria-describedby="about-modal-body"
+      onClick={onClose}
+    >
+      <div className={`about-modal about-modal--${viewMode}`} onClick={(event) => event.stopPropagation()}>
+        <button
+          type="button"
+          className="about-modal__close"
+          onClick={onClose}
+          aria-label="Close about modal"
+          ref={closeButtonRef}
+        >
+          <Xmark width={16} height={16} strokeWidth={2} />
+        </button>
+        <h2 id="about-modal-title">Beautifully Designed Objects</h2>
+        <p id="about-modal-body">
+          A curated edit of objects that blend craftsmanship, functionality, and playful imagination.
+          Every piece is sourced with an eye for material honesty, timeless typography, and effortless wear.
+        </p>
+        <ul className="about-modal__list">
+          <li>Slow-made furniture and ceramics with architected details.</li>
+          <li>Unique accessories built for daily rituals and memorable gatherings.</li>
+          <li>Globally sourced discoveries, handpicked for their narrative and tactility.</li>
+        </ul>
+        {featured.length > 0 && (
+          <div className="about-modal-gallery" aria-label="Featured objects">
+            {featured.map((item) => (
+              <figure key={item.id} className="about-modal-gallery-item">
+                <img
+                  src={item.src}
+                  alt={item.name || `Gallery item ${item.id}`}
+                  loading="lazy"
+                  draggable="false"
+                />
+                <figcaption>{item.name}</figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+        <p className="about-modal__footnote">
+          Tap the title to revisit this note when browsing on desktop.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 // Category icons mapping
 const CareIcon = ({ ...props }) => <Droplet {...props} strokeWidth={1.8} />;
@@ -34,6 +97,12 @@ const sortOptions = [
   { value: 'vibes', label: 'Vibes' },
 ];
 
+const viewModes = [
+  { key: 'grid', label: 'Grid view', Icon: DotsGrid3x3 },
+  { key: 'scattered', label: 'Canvas view', Icon: FrameAltEmpty },
+  { key: 'list', label: 'List view', Icon: MenuScale },
+];
+const FEATURED_MODAL_IMAGES = galleryImages.slice(0, 5);
 // Country flag emojis
 const countryFlags = {
   'All': '🌍',
@@ -76,6 +145,8 @@ function App() {
   const [sortMethod, setSortMethod] = useState('vibes');
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const sortMenuRef = useRef(null);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= DESKTOP_BREAKPOINT);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const showSortControls = viewMode === 'grid' || viewMode === 'list';
 
   const categories = ['Live', 'Work', 'Play', 'Eat', 'Wear', 'Care'];
@@ -84,9 +155,23 @@ function App() {
   const countryOptions = ['All', 'India', 'USA', 'Japan', 'France', 'Singapore', 'Sri Lanka', 'Czech Republic'];
 
   const filterRef = useRef(null);
+  const sheetRef = useRef(null);
+  const dropdownTitles = {
+    categories: 'Categories',
+    acquisition: 'Source',
+    color: 'Color',
+    country: 'Country',
+  };
+
+  const currentModeConfig = viewModes.find((mode) => mode.key === viewMode) ?? viewModes[0];
+  const CurrentModeIcon = currentModeConfig.Icon;
 
   const toggleDropdown = (dropdown) => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);
+  };
+
+  const toggleMobileMode = () => {
+    setViewMode((prev) => (prev === 'list' ? 'grid' : 'list'));
   };
 
   const handleSortToggle = () => {
@@ -98,10 +183,30 @@ function App() {
     setSortMenuOpen(false);
   };
 
+  const handleTitleInteraction = () => {
+    if (!isDesktop) {
+      return;
+    }
+    setIsAboutModalOpen(true);
+  };
+
+  const handleTitleKeyDown = (event) => {
+    if (!isDesktop) {
+      return;
+    }
+
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Space' || event.key === 'Spacebar') {
+      event.preventDefault();
+      setIsAboutModalOpen(true);
+    }
+  };
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (filterRef.current && !filterRef.current.contains(event.target)) {
+      const clickedInsideFilter = filterRef.current && filterRef.current.contains(event.target);
+      const clickedInsideSheet = sheetRef.current && sheetRef.current.contains(event.target);
+      if (!clickedInsideFilter && !clickedInsideSheet) {
         setOpenDropdown(null);
       }
     };
@@ -126,12 +231,149 @@ function App() {
     }
   }, [showSortControls]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop && isAboutModalOpen) {
+      setIsAboutModalOpen(false);
+    }
+  }, [isDesktop, isAboutModalOpen]);
+
+  useEffect(() => {
+    if (!isAboutModalOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsAboutModalOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isAboutModalOpen]);
+
+  useEffect(() => {
+    if (!isAboutModalOpen) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isAboutModalOpen]);
+
   const toggleCategory = (cat) => {
     setActiveCategories(prev => 
       prev.includes(cat) 
         ? prev.filter(c => c !== cat)  // Remove if already selected
         : [...prev, cat]                // Add if not selected
     );
+  };
+
+  const handleMobileSelect = (dropdown, value) => {
+    if (dropdown === 'categories') {
+      toggleCategory(value);
+      return;
+    }
+
+    if (dropdown === 'acquisition') {
+      setAcquisition(value);
+    } else if (dropdown === 'color') {
+      setColor(value);
+    } else if (dropdown === 'country') {
+      setCountry(value);
+    }
+
+    setOpenDropdown(null);
+  };
+
+  const renderMobileDropdownOptions = () => {
+    if (!openDropdown) {
+      return null;
+    }
+
+    if (openDropdown === 'categories') {
+      return categories.map((cat) => {
+        const IconComponent = categoryIcons[cat];
+        return (
+          <button
+            key={`mobile-category-${cat}`}
+            type="button"
+            className={`dropdown-item mobile-dropdown-item ${activeCategories.includes(cat) ? 'active' : ''}`}
+            onClick={() => handleMobileSelect('categories', cat)}
+          >
+            {IconComponent && (
+              <span className="mobile-dropdown-item__icon">
+                <IconComponent width={18} height={18} strokeWidth={1.8} />
+              </span>
+            )}
+            <span>{cat}</span>
+          </button>
+        );
+      });
+    }
+
+    if (openDropdown === 'acquisition') {
+      return acquisitionOptions.map((option) => (
+        <button
+          key={`mobile-acquisition-${option}`}
+          type="button"
+          className={`dropdown-item mobile-dropdown-item ${acquisition === option ? 'active' : ''}`}
+          onClick={() => handleMobileSelect('acquisition', option)}
+        >
+          {option}
+        </button>
+      ));
+    }
+
+    if (openDropdown === 'color') {
+      return colorOptions.map((option) => (
+        <button
+          key={`mobile-color-${option}`}
+          type="button"
+          className={`dropdown-item mobile-dropdown-item ${color === option ? 'active' : ''}`}
+          onClick={() => handleMobileSelect('color', option)}
+        >
+          {option !== 'All' && (
+            <span
+              className="color-dot"
+              style={{ background: colorHex[option] }}
+            />
+          )}
+          {option}
+        </button>
+      ));
+    }
+
+    if (openDropdown === 'country') {
+      return countryOptions.map((option) => (
+        <button
+          key={`mobile-country-${option}`}
+          type="button"
+          className={`dropdown-item mobile-dropdown-item ${country === option ? 'active' : ''}`}
+          onClick={() => handleMobileSelect('country', option)}
+        >
+          {option !== 'All' && `${countryFlags[option]}  `}
+          {option}
+        </button>
+      ));
+    }
+
+    return null;
   };
 
   // Check if any filters are active
@@ -150,9 +392,34 @@ function App() {
 
   return (
     <div className={`app ${themeClass}`}>
+      {isDesktop && isAboutModalOpen && (
+        <AboutModal
+          onClose={() => setIsAboutModalOpen(false)}
+          viewMode={viewMode}
+          featured={FEATURED_MODAL_IMAGES}
+        />
+      )}
       <header className="header">
         <div className="header-left">
-          <h1 className="site-title">Beautifully Designed Objects</h1>
+        <h1
+          className="site-title"
+          tabIndex={0}
+          role="button"
+          aria-controls="about-modal-title"
+          aria-expanded={isAboutModalOpen}
+          onClick={handleTitleInteraction}
+          onKeyDown={handleTitleKeyDown}
+        >
+          {isDesktop ? (
+            'Beautifully Designed Objects'
+          ) : (
+            <>
+              <span>Beautifully</span>
+              <span>Designed</span>
+              <span>Objects</span>
+            </>
+          )}
+        </h1>
         </div>
         
         <div className="header-right">
@@ -182,25 +449,66 @@ function App() {
               <MenuScale width={16} height={16} strokeWidth={2} />
             </button>
           </div>
+          <div className="mobile-view-wrapper">
+            <button
+              type="button"
+              className="mobile-mode-btn"
+              onClick={toggleMobileMode}
+              aria-label="Toggle between grid and list view"
+            >
+              <CurrentModeIcon width={20} height={20} strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </header>
 
       <div className="filter-bar">
         <div className="filter-section" ref={filterRef}>
-          {categories.map((cat) => {
-            const IconComponent = categoryIcons[cat];
-            return (
-              <button
-                key={cat}
-                className={`filter-pill ${activeCategories.includes(cat) ? 'active' : ''}`}
-                onClick={() => toggleCategory(cat)}
-              >
-                <IconComponent width={16} height={16} strokeWidth={1.8} />
-                <span>{cat}</span>
-              </button>
-            );
-          })}
-          
+          <div className="category-pill-group">
+            {categories.map((cat) => {
+              const IconComponent = categoryIcons[cat];
+              return (
+                <button
+                  key={cat}
+                  className={`filter-pill ${activeCategories.includes(cat) ? 'active' : ''}`}
+                  onClick={() => toggleCategory(cat)}
+                >
+                  <IconComponent width={16} height={16} strokeWidth={1.8} />
+                  <span>{cat}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="filter-dropdown-wrapper category-dropdown-mobile">
+            <button
+              type="button"
+              className={`filter-dropdown category-dropdown-trigger ${openDropdown === 'categories' ? 'active' : ''}`}
+              onClick={() => toggleDropdown('categories')}
+            >
+              <span>{activeCategories.length ? `${activeCategories.length} selected` : 'Categories'}</span>
+              <NavArrowDown
+                width={16}
+                height={16}
+                strokeWidth={1.8}
+                className={`category-chevron ${openDropdown === 'categories' ? 'open' : ''}`}
+              />
+            </button>
+            {openDropdown === 'categories' && (
+              <div className="dropdown-menu category-dropdown-menu">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    className={`dropdown-item ${activeCategories.includes(cat) ? 'active' : ''}`}
+                    onClick={() => toggleCategory(cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="filter-divider"></div>
           
           <div className="filter-dropdown-wrapper">
@@ -303,6 +611,49 @@ function App() {
         </div>
 
       </div>
+      {openDropdown && (
+        <>
+          <div
+            className="dropdown-backdrop"
+            aria-hidden="true"
+            onClick={() => setOpenDropdown(null)}
+          />
+          <div
+            ref={sheetRef}
+            className="mobile-dropdown-sheet"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="mobile-dropdown-sheet__header">
+              <div className="mobile-dropdown-sheet__title">
+                {dropdownTitles[openDropdown] ?? 'Options'}
+              </div>
+              <button
+                type="button"
+                className="mobile-dropdown-sheet__close"
+                onClick={() => setOpenDropdown(null)}
+                aria-label="Close filters"
+              >
+                <Xmark width={18} height={18} strokeWidth={1.8} color="currentColor" />
+              </button>
+            </div>
+            <div className="mobile-dropdown-sheet__options">
+              {renderMobileDropdownOptions()}
+            </div>
+            {openDropdown === 'categories' && (
+              <div className="mobile-dropdown-sheet__cta">
+                <button
+                  type="button"
+                  className="mobile-dropdown-sheet__cta-btn"
+                  onClick={() => setOpenDropdown(null)}
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       <main>
         <div className="canvas-meta">
