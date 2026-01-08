@@ -741,6 +741,21 @@ function App() {
           onClearFilters={clearFilters}
         />
       </main>
+      {isDesktop && (
+        <footer className="page-footer">
+          Made with a lot of love by{' '}
+          <a
+            className="page-footer-link"
+            href="https://x.com/charmiekapoor"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="page-footer-link-avatar" aria-hidden="true" />
+            Charmie Kapoor
+          </a>
+          .
+        </footer>
+      )}
     </div>
   );
 }

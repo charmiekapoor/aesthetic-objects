@@ -349,6 +349,65 @@
   text-decoration: underline;
 }
 
+/* Desktop-only footer credit */
+.page-footer {
+  font-family: 'Google Sans Code', 'Helvetica Neue', sans-serif;
+  letter-spacing: -0.02em;
+  font-size: 0.9rem;
+  color: #8c8c8c;
+  padding: 32px 40px 48px;
+  text-align: left;
+}
+
+.page-footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: text-decoration 0.2s ease;
+}
+
+.page-footer a:hover,
+.page-footer a:focus-visible {
+  text-decoration: underline;
+}
+
+.page-footer-link {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding-top: 24px; /* space for the popover */
+  font-weight: 500;
+}
+
+.page-footer-link-avatar {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 96px;
+  height: 96px;
+  transform: translate(-50%, 6px);
+  border-radius: 8px;
+  background-image: url('/charmie.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.page-footer-link:hover .page-footer-link-avatar,
+.page-footer-link:focus-visible .page-footer-link-avatar {
+  opacity: 1;
+  transform: translate(-50%, -6px);
+}
+
+@media (max-width: 1023px) {
+  .page-footer {
+    display: none;
+  }
+}
+
 @keyframes carousel-scroll {
   0% {
     transform: translateX(0);
