@@ -300,14 +300,17 @@
 .about-modal-carousel {
   margin: 20px 0 0;
   overflow: hidden;
+  position: relative;
 }
 
 .about-modal-carousel-track {
+  --carousel-gap: 20px;
   display: flex;
-  gap: 20px;
-  padding: 12px;
+  gap: var(--carousel-gap);
+  padding: 12px 0;
   animation: carousel-scroll 75s linear infinite;
   width: max-content;
+  will-change: transform;
 }
 
 .about-modal-carousel:hover .about-modal-carousel-track {
@@ -414,6 +417,27 @@
   }
   100% {
     transform: translateX(-50%);
+  }
+}
+
+@keyframes carousel-scroll-gap {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - var(--carousel-gap)));
+  }
+}
+
+@supports (transform: translateX(calc(-50% - var(--carousel-gap)))) {
+  .about-modal-carousel-track {
+    animation-name: carousel-scroll-gap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-modal-carousel-track {
+    animation-play-state: paused;
   }
 }
 
