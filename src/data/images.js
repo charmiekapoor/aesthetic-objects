@@ -191,7 +191,7 @@ export const galleryImages = [
     howAcquired: "Gifted",
     from: "India",
     category: "Eat",
-    story: "A friend gifted me these on a random day just like that. No occasion. She knows I love chai 🥰",
+    story: "Pallavi gifted me these on a random day just like that. There was no occassion occasion. She knows I love chai 🥰",
     price: "rs 2100",
     link: "https://www.nicobar.com/products/galle-kulhar-set-of-4-1"
   },

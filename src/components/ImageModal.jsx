@@ -245,7 +245,11 @@ function ImageModal({ image, onClose, onNavigate }) {
                     .map((paragraph, index) => {
                       const words = image.id === 10
                         ? paragraph.split(/(aviavi)/gi)
-                        : [paragraph];
+                        : image.id === 57
+                          ? paragraph.split(/(vidit)/gi)
+                          : image.id === 15
+                            ? paragraph.split(/(pallavi)/gi)
+                            : [paragraph];
 
                       if (image.id === 20 && index === 0) {
                         return (
@@ -274,6 +278,22 @@ function ImageModal({ image, onClose, onNavigate }) {
                                 rel="noopener noreferrer"
                                 className="story-link"
                               >Avi</a>
+                            ) : image.id === 57 && segment.toLowerCase() === 'vidit' ? (
+                              <a
+                                key={`link-${segmentIndex}`}
+                                href="https://x.com/viditchess"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="story-link"
+                              >Vidit</a>
+                            ) : image.id === 15 && segment.toLowerCase() === 'pallavi' ? (
+                              <a
+                                key={`link-${segmentIndex}`}
+                                href="https://x.com/pallavi_benawri"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="story-link"
+                              >Pallavi</a>
                             ) : (
                               segment
                             )
