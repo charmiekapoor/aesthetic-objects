@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Gallery from './components/Gallery';
 import { galleryImages } from './data/images';
 import { 
@@ -17,6 +17,8 @@ import {
 import './App.css';
 
 const DESKTOP_BREAKPOINT = 1024;
+const LOADER_DURATION_MS = 1300;
+const LOADER_EXIT_DURATION_MS = 400;
 
 function AboutModal({ onClose, viewMode, featured = [] }) {
   const closeButtonRef = useRef(null);
@@ -167,6 +169,120 @@ const colorHex = {
   'Multicolor': 'linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3)',
 };
 
+const LOADER_LAYOUT = [
+  {
+    offsetX: '-180px',
+    offsetY: '-160px',
+    rotate: '-12deg',
+    delay: '0s',
+    exitX: '-400px',
+    exitY: '-330px',
+    exitRotate: '-18deg',
+  },
+  {
+    offsetX: '200px',
+    offsetY: '-140px',
+    rotate: '6deg',
+    delay: '0.12s',
+    exitX: '420px',
+    exitY: '-250px',
+    exitRotate: '12deg',
+  },
+  {
+    offsetX: '-210px',
+    offsetY: '110px',
+    rotate: '10deg',
+    delay: '0.25s',
+    exitX: '-420px',
+    exitY: '360px',
+    exitRotate: '24deg',
+  },
+  {
+    offsetX: '220px',
+    offsetY: '140px',
+    rotate: '-8deg',
+    delay: '0.38s',
+    exitX: '460px',
+    exitY: '320px',
+    exitRotate: '-14deg',
+  },
+  {
+    offsetX: '0px',
+    offsetY: '-220px',
+    rotate: '4deg',
+    delay: '0.5s',
+    exitX: '0px',
+    exitY: '-450px',
+    exitRotate: '6deg',
+  },
+  {
+    offsetX: '40px',
+    offsetY: '220px',
+    rotate: '12deg',
+    delay: '0.62s',
+    exitX: '220px',
+    exitY: '460px',
+    exitRotate: '18deg',
+  },
+];
+
+const LOADER_LAYOUT_MOBILE = [
+  {
+    offsetX: '-110px',
+    offsetY: '-100px',
+    rotate: '-12deg',
+    delay: '0s',
+    exitX: '-280px',
+    exitY: '-210px',
+    exitRotate: '-18deg',
+  },
+  {
+    offsetX: '140px',
+    offsetY: '-110px',
+    rotate: '6deg',
+    delay: '0.12s',
+    exitX: '320px',
+    exitY: '-150px',
+    exitRotate: '12deg',
+  },
+  {
+    offsetX: '-120px',
+    offsetY: '80px',
+    rotate: '10deg',
+    delay: '0.25s',
+    exitX: '-320px',
+    exitY: '250px',
+    exitRotate: '24deg',
+  },
+  {
+    offsetX: '150px',
+    offsetY: '120px',
+    rotate: '-8deg',
+    delay: '0.38s',
+    exitX: '340px',
+    exitY: '240px',
+    exitRotate: '-14deg',
+  },
+  {
+    offsetX: '0px',
+    offsetY: '-150px',
+    rotate: '4deg',
+    delay: '0.5s',
+    exitX: '0px',
+    exitY: '-330px',
+    exitRotate: '6deg',
+  },
+  {
+    offsetX: '30px',
+    offsetY: '150px',
+    rotate: '12deg',
+    delay: '0.62s',
+    exitX: '200px',
+    exitY: '360px',
+    exitRotate: '18deg',
+  },
+];
+
 function App() {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'scattered' | 'list'
   const [activeCategories, setActiveCategories] = useState([]); // Array for multi-select
@@ -177,9 +293,26 @@ function App() {
   const [resultCount, setResultCount] = useState(0);
   const [sortMethod, setSortMethod] = useState('vibes');
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoaderExiting, setIsLoaderExiting] = useState(false);
   const sortMenuRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= DESKTOP_BREAKPOINT);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [loaderLayout, setLoaderLayout] = useState(LOADER_LAYOUT);
+  const loaderPhotos = useMemo(() => {
+    const shuffled = [...galleryImages].sort(() => Math.random() - 0.5);
+    const isMobileLayout = loaderLayout === LOADER_LAYOUT_MOBILE;
+    return loaderLayout.map((layout, index) => {
+      const image = shuffled[index % shuffled.length];
+      return {
+        ...layout,
+        src: image?.src ?? galleryImages[index % galleryImages.length]?.src ?? '',
+        width: '150px',
+        height: '150px',
+        scale: isMobileLayout ? 0.9 : 1,
+      };
+    });
+  }, [loaderLayout]);
   const showSortControls = viewMode === 'grid' || viewMode === 'list';
 
   const categories = ['Live', 'Work', 'Play', 'Eat', 'Wear', 'Care'];
@@ -215,6 +348,21 @@ function App() {
     setSortMethod(value);
     setSortMenuOpen(false);
   };
+
+  useEffect(() => {
+    let hideTimer;
+    const exitTimer = setTimeout(() => {
+      setIsLoaderExiting(true);
+      hideTimer = setTimeout(() => {
+        setIsLoading(false);
+      }, LOADER_EXIT_DURATION_MS);
+    }, LOADER_DURATION_MS);
+
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(hideTimer);
+    };
+  }, []);
 
   const handleTitleInteraction = () => {
     if (!isDesktop) {
@@ -289,6 +437,8 @@ function App() {
 
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
+      const preferredLayout = window.innerWidth < 768 ? LOADER_LAYOUT_MOBILE : LOADER_LAYOUT;
+      setLoaderLayout((prev) => (prev === preferredLayout ? prev : preferredLayout));
     };
 
     handleResize();
@@ -443,6 +593,33 @@ function App() {
 
   return (
     <div className={`app ${themeClass}`}>
+      {isLoading && (
+        <div
+          className={`loader-overlay${isLoaderExiting ? ' loader-overlay--exiting' : ''}`}
+          role="status"
+          aria-live="polite"
+        >
+          {loaderPhotos.map((photo) => (
+            <div
+              key={`${photo.src}-${photo.delay}`}
+              className="loader-piece"
+              style={{
+                backgroundImage: `url(${photo.src})`,
+                '--offset-x': photo.offsetX,
+                '--offset-y': photo.offsetY,
+                '--rotate': photo.rotate,
+                '--delay': photo.delay,
+                '--piece-width': photo.width,
+                '--piece-height': photo.height,
+                '--piece-scale': photo.scale ?? 1,
+              '--exit-x': photo.exitX,
+              '--exit-y': photo.exitY,
+              '--exit-rotate': photo.exitRotate,
+              }}
+            />
+          ))}
+        </div>
+      )}
       {isDesktop && isAboutModalOpen && (
         <AboutModal
           onClose={() => setIsAboutModalOpen(false)}
@@ -767,31 +944,28 @@ function App() {
           onClearFilters={clearFilters}
         />
       </main>
-      {isDesktop && (
-        <footer className="page-footer">
-          <div className="page-footer-credit">
-            Made with a lot of love by {' '}
-            <a
-              className="page-footer-link"
-              href="https://x.com/charmiekapoor"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className="page-footer-link-avatar" aria-hidden="true" />
-              Charmie Kapoor
-            </a>
-            .
-          </div>
+      <footer className="page-footer">
+        <div className="page-footer-credit">
+          Made with love by{' '}
           <a
-            className="page-footer-note"
-            href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            className="page-footer-link"
+            href="https://x.com/charmiekapoor"
             target="_blank"
             rel="noreferrer"
           >
-            Get one object for free.
-          </a>
-        </footer>
-      )}
+            <span className="page-footer-link-avatar" aria-hidden="true" />
+            Charmie Kapoor
+          </a>.
+        </div>
+        <a
+          className="page-footer-note"
+          href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Get one object for free!
+        </a>
+      </footer>
     </div>
   );
 }

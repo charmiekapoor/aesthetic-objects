@@ -151,7 +151,7 @@ export const galleryImages = [
     color: "Grey, White",
     howAcquired: "Bought",
     from: "USA",
-    category: "Wear",
+    category: "Care",
     story: "I was buying a few of these for family at the end of a trip. Liked the fragrance and kept one for myself.\n\nI do think there are better options out there though.",
     price: "$10",
     link: "https://margotelena.com/products/elegance-shea-butter-handcreme"
@@ -162,7 +162,7 @@ export const galleryImages = [
     name: "Indigo ceramic bud vase",
     brand: "FabIndia",
     color: "Blue",
-    howAcquired: "bought",
+    howAcquired: "Bought",
     from: "India",
     category: "Live",
     story: "I find it hard to keep plants alive, so a mini one-stem flower felt doable. A small, low-risk experiment to see if I could eventually move to bigger plants. Nope. Couldn't.",
