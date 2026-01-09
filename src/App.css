@@ -308,7 +308,8 @@
   display: flex;
   gap: var(--carousel-gap);
   padding: 12px 0;
-  animation: carousel-scroll 75s linear infinite;
+  animation: carousel-scroll linear infinite;
+  animation-duration: var(--carousel-duration, 75s);
   width: max-content;
   will-change: transform;
 }
@@ -359,7 +360,22 @@
   font-size: 0.9rem;
   color: #8c8c8c;
   padding: 32px 40px 48px;
-  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.page-footer-credit {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.page-footer-note {
+  font-size: 0.8rem;
+  color: rgba(140, 140, 140, 0.25);
+  margin-left: auto;
+  text-align: right;
 }
 
 .page-footer a {
@@ -386,8 +402,8 @@
   position: absolute;
   left: 50%;
   bottom: 100%;
-  width: 96px;
-  height: 96px;
+  width: 120px;
+  height: 120px;
   transform: translate(-50%, 6px);
   border-radius: 8px;
   background-image: url('/charmie.png');

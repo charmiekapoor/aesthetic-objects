@@ -269,6 +269,24 @@ function App() {
       return undefined;
     }
 
+    const userAgent = navigator.userAgent;
+    const isSafari = userAgent.includes('Safari') && !/(Chrome|Chromium|CriOS|FxiOS)/i.test(userAgent);
+    if (!isSafari) {
+      return undefined;
+    }
+
+    const root = document.documentElement;
+    root.style.setProperty('--carousel-duration', '110s');
+    return () => {
+      root.style.removeProperty('--carousel-duration');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
     };
@@ -751,17 +769,27 @@ function App() {
       </main>
       {isDesktop && (
         <footer className="page-footer">
-          Made with a lot of love by{' '}
+          <div className="page-footer-credit">
+            Made with a lot of love by{' '}
+            <a
+              className="page-footer-link"
+              href="https://x.com/charmiekapoor"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="page-footer-link-avatar" aria-hidden="true" />
+              Charmie Kapoor
+            </a>
+            .
+          </div>
           <a
-            className="page-footer-link"
-            href="https://x.com/charmiekapoor"
+            className="page-footer-note"
+            href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             target="_blank"
             rel="noreferrer"
           >
-            <span className="page-footer-link-avatar" aria-hidden="true" />
-            Charmie Kapoor
+            Get one object for free.
           </a>
-          .
         </footer>
       )}
     </div>

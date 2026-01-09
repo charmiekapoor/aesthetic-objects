@@ -399,7 +399,7 @@ export const galleryImages = [
     howAcquired: "Earned :)",
     from: "India",
     category: "Live",
-    story: "Won this as a student at the Kyoorius Young Blood Awards. Was a very memorable day. The award design itself is very striking and well-designed, alomost feels like an decor piece.",
+    story: "Won this as a student at the Kyoorius Young Blood Awards. Was a very memorable day. The award design itself is very striking and well-designed, alomost feels like a decor piece.",
     price: "Time and effort",
     link: "https://www.kyb.kyoorius.com/kyb23"
   },
