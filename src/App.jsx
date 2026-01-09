@@ -770,7 +770,7 @@ function App() {
       {isDesktop && (
         <footer className="page-footer">
           <div className="page-footer-credit">
-            Made with a lot of love by{' '}
+            Made with a lot of love by {' '}
             <a
               className="page-footer-link"
               href="https://x.com/charmiekapoor"
