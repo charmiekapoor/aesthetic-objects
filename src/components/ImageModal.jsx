@@ -251,7 +251,9 @@ function ImageModal({ image, onClose, onNavigate }) {
                             ? paragraph.split(/(pallavi)/gi)
                             : image.id === 48
                               ? paragraph.split(/(sanjeevani)/gi)
-                              : [paragraph];
+                              : image.id === 62
+                                ? paragraph.split(/(Anvika)/gi)
+                                : [paragraph];
 
                       if (image.id === 20 && index === 0) {
                         return (
@@ -304,6 +306,14 @@ function ImageModal({ image, onClose, onNavigate }) {
                                 rel="noopener noreferrer"
                                 className="story-link"
                               >Sanjeevani</a>
+                            ) : image.id === 62 && segment.toLowerCase() === 'anvika' ? (
+                              <a
+                                key={`link-${segmentIndex}`}
+                                href="https://x.com/AnvikaMaini"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="story-link"
+                              >Anvika</a>
                             ) : (
                               segment
                             )

@@ -295,7 +295,7 @@ export const galleryImages = [
     howAcquired: "Bought",
     from: "USA",
     category: "Wear",
-    story: "SF mornings were too cold. I was waking up at 6am everyday to do runs. I saw everyone around me wearing Lululemon and thought I sure try it too (peer pressured?). Got a first-purchase discount, which made it easier. This ended up being my first Lululemon buy and it\u2019s one of my fav jackets.",
+    story: "SF mornings were too cold. I was waking up at 6am everyday to go on runs. I saw everyone around me wearing Lululemon and thought I sure try it too (peer pressured?). Got a first-purchase discount, which made it easier. This ended up being my first Lululemon buy and it\u2019s one of my fav jackets.",
     price: "$128",
     link: "https://shop.lululemon.com/p/jackets-and-hoodies-jackets/Hood-Lite-Relaxed-Fit-Jacket/_/prod20000211?color=0001"
   },
