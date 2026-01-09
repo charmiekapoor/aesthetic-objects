@@ -46,7 +46,7 @@ function AboutModal({ onClose, viewMode, featured = [] }) {
         >
           <Xmark width={16} height={16} strokeWidth={2} />
         </button>
-        <h2 id="about-modal-title">"The space around you is a reflection of your taste."</h2>
+        <h2 id="about-modal-title">The space around you is a reflection of your taste.</h2>
         <p id="about-modal-body">
         I derive a lot of joy from the spaces and objects I live with. I like noticing how things are made, the small details someone cared enough to think through, and how those choices make all the difference.
         </p>
@@ -66,12 +66,20 @@ function AboutModal({ onClose, viewMode, featured = [] }) {
                   key={`${item.id}-${index}`}
                   className="about-modal-carousel-item"
                 >
-                  <img
-                    src={item.src}
-                    alt={item.name || `Gallery item ${item.id}`}
-                    loading="lazy"
-                    draggable="false"
-                  />
+                  <picture>
+                    {item.webpSrc && (
+                      <source
+                        type="image/webp"
+                        srcSet={item.webpSrc}
+                      />
+                    )}
+                    <img
+                      src={item.src}
+                      alt={item.name || `Gallery item ${item.id}`}
+                      loading="lazy"
+                      draggable="false"
+                    />
+                  </picture>
                 </figure>
               ))}
             </div>
@@ -119,14 +127,14 @@ const viewModes = [
   { key: 'list', label: 'List view', Icon: MenuScale },
 ];
 const FEATURED_MODAL_IMAGES = [
-  { id: 'carousel-1', src: '/Carousel/IMG_0370.jpeg' },
-  { id: 'carousel-2', src: '/Carousel/IMG_0897.jpeg' },
-  { id: 'carousel-3', src: '/Carousel/IMG_2071.jpeg' },
-  { id: 'carousel-4', src: '/Carousel/IMG_2452.jpeg' },
-  { id: 'carousel-5', src: '/Carousel/IMG_2457.jpeg' },
-  { id: 'carousel-6', src: '/Carousel/IMG_2539.jpeg' },
-  { id: 'carousel-7', src: '/Carousel/IMG_3638.jpeg' },
-  { id: 'carousel-8', src: '/Carousel/IMG_5752.jpeg' },
+  { id: 'carousel-1', src: '/Carousel/IMG_0370.jpeg', webpSrc: '/Carousel/IMG_0370.webp' },
+  { id: 'carousel-2', src: '/Carousel/IMG_0897.jpeg', webpSrc: '/Carousel/IMG_0897.webp' },
+  { id: 'carousel-3', src: '/Carousel/IMG_2071.jpeg', webpSrc: '/Carousel/IMG_2071.webp' },
+  { id: 'carousel-4', src: '/Carousel/IMG_2452.jpeg', webpSrc: '/Carousel/IMG_2452.webp' },
+  { id: 'carousel-5', src: '/Carousel/IMG_2457.jpeg', webpSrc: '/Carousel/IMG_2457.webp' },
+  { id: 'carousel-6', src: '/Carousel/IMG_2539.jpeg', webpSrc: '/Carousel/IMG_2539.webp' },
+  { id: 'carousel-7', src: '/Carousel/IMG_3638.jpeg', webpSrc: '/Carousel/IMG_3638.webp' },
+  { id: 'carousel-8', src: '/Carousel/IMG_5752.jpeg', webpSrc: '/Carousel/IMG_5752.webp' },
 ];
 // Country flag emojis
 const countryFlags = {

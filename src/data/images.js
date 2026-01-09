@@ -35,7 +35,7 @@ export const galleryImages = [
     howAcquired: "Bought",
     from: "USA",
     category: "Eat",
-    story: "Wanted a portable mini water bottle to carry hot water. Couldn't find one and really liked how this was designed. It actually maintains the temperature really well.",
+    story: "Wanted a portable mini water bottle to carry hot water. Loved the design and illustrations on this one. \n\n It maintains the temperature really well, very good for coffee too.",
     price: "$42",
     link: "https://museumstore.sfmoma.org/products/kristina-micotti-everywhere-mug?variant=42706607472818"
   },
@@ -61,7 +61,7 @@ export const galleryImages = [
     howAcquired: "Bought",
     from: "India",
     category: "Work",
-    story: "I actually bought this because I was getting a heavy discount on my total cart if I added one more item. I wanted a tote with a zip since I carry my wallet and earphones in it and I\u2019m always scared they\u2019ll fall out. Like the size. It looks softer in pictures than it actually is.",
+    story: "I only bought this because I was getting a heavy discount on my total cart amount if I added one more item. I wanted a tote with a zip since I carry my wallet and earphones in it and I\u2019m always scared they\u2019ll fall out. Like the size. It looks softer in pictures than it actually is.",
     price: "Rs.1,999",
     link: "https://akiiko.com/collections/most-loved/products/crinkle-stripe-tote-espresso"
   },
@@ -87,7 +87,7 @@ export const galleryImages = [
     howAcquired: "Bought",
     from: "Japan",
     category: "Play",
-    story: "I got a few for friends and one for myself from Kyoto (Japan). It comes as a flat jigsaw puzzle, and putting it together is surprisingly meditative. No glue or adhesives involved, just a lot of patience.\n\nOnce it\u2019s done, it turns into a nice little decorative piece.",
+    story: "I got a few for friends and one for myself from Kyoto (Japan). It comes in as a flat jigsaw puzzle, and putting it together is surprisingly meditative. No glue or adhesives involved, just a lot of patience.\n\nOnce it\u2019s done, it turns into a nice little decorative piece.",
     price: "3000 yen",
     link: "https://shibuya-stationery.com/collections/diy-models/products/pusu-pusu-kyoto-diy-models"
   },
@@ -152,7 +152,7 @@ export const galleryImages = [
     howAcquired: "Bought",
     from: "USA",
     category: "Wear",
-    story: "I was buying a few of these for family at the end of a tip. Liked the fragrance and kept one for myself.\n\nI do think there are better options out there though.",
+    story: "I was buying a few of these for family at the end of a trip. Liked the fragrance and kept one for myself.\n\nI do think there are better options out there though.",
     price: "$10",
     link: "https://margotelena.com/products/elegance-shea-butter-handcreme"
   },
@@ -204,7 +204,7 @@ export const galleryImages = [
     howAcquired: "Bought",
     from: "Japan",
     category: "Work",
-    story: "Got this to store small knick knacks while travelling. They actually don't sell the exact one anymore, but there's a similar-ish one. Adding the link below.",
+    story: "Got this to store small knick-knacks while travelling. They actually don't sell the exact one anymore, but there's a similar-ish one. Adding the link below.",
     price: "$4.90",
     link: "https://www.muji.us/products/nylon-mesh-pen-case-with-gusset-nde5a1"
   },
@@ -217,7 +217,7 @@ export const galleryImages = [
     howAcquired: "Bought",
     from: "India",
     category: "Live",
-    story: "Got this to read books at night in bed. The light is adjustable, which makes it easy on the eyes.\n\nIt has a very industrial aesthetic and works well with almost any kind of decor.",
+    story: "Use it to read books at night in bed. The light is adjustable, which makes it easy on the eyes.\n\nIt has a very industrial aesthetic and works well with almost any kind of decor.",
     price: "Rs 1790",
     link: "https://www.ikea.com/in/en/p/askmuller-table-lamp-dimmable-light-grey-10576247/"
   },
@@ -399,7 +399,7 @@ export const galleryImages = [
     howAcquired: "Earned :)",
     from: "India",
     category: "Live",
-    story: "Won this as a student project winner at the Kyoorius Young Blood Awards. I was really, really, really happy.",
+    story: "Won this as a student at the Kyoorius Young Blood Awards. Was a very memorable day. The award design itself is very striking and well-designed, alomost feels like an decor piece.",
     price: "Time and effort",
     link: "https://www.kyb.kyoorius.com/kyb23"
   },
@@ -620,9 +620,9 @@ export const galleryImages = [
     howAcquired: "Gifted",
     from: "India",
     category: "Eat",
-    story: "Local Bangalore ceramic store in Jayanagar. They have a great collection of mugs, jars, vases and other items.",
+    story: "This was a gift from Sanjeevani who got it from a Local Bangalore ceramic store in Jayanagar. I use it almost daily for having meals (bowl-plates are the best!). They have a great collection of mugs, jars, vases and other items. Linking the location below if you want to visit. ",
     price: "rs300",
-    link: ""
+    link: "https://maps.app.goo.gl/fpUAjGWfWPWuTVNi9?g_st=aw"
   },
   {
     id: 49,

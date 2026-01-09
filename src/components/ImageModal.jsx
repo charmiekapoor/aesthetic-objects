@@ -249,12 +249,14 @@ function ImageModal({ image, onClose, onNavigate }) {
                           ? paragraph.split(/(vidit)/gi)
                           : image.id === 15
                             ? paragraph.split(/(pallavi)/gi)
-                            : [paragraph];
+                            : image.id === 48
+                              ? paragraph.split(/(sanjeevani)/gi)
+                              : [paragraph];
 
                       if (image.id === 20 && index === 0) {
                         return (
                           <p key="nivarah-intro">
-                            A friend Kamlesh runs a website with artisnal objects –{' '}
+                            A friend Kamlesh runs a website with artisanal objects –{' '}
                             <a
                               href="https://nivarah.com"
                               target="_blank"
@@ -294,6 +296,14 @@ function ImageModal({ image, onClose, onNavigate }) {
                                 rel="noopener noreferrer"
                                 className="story-link"
                               >Pallavi</a>
+                            ) : image.id === 48 && segment.toLowerCase() === 'sanjeevani' ? (
+                              <a
+                                key={`link-${segmentIndex}`}
+                                href="https://x.com/SMarcha7"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="story-link"
+                              >Sanjeevani</a>
                             ) : (
                               segment
                             )
