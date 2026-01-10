@@ -110,11 +110,22 @@ const extractNumericValue = (value) => {
   return match ? parseFloat(match[0]) : null;
 };
 
+const getPricePriority = (price) => {
+  if (!price) return 0;
+  const normalized = price.toString().trim().toLowerCase();
+  if (normalized === 'priceless') return 2;
+  if (normalized === 'time and effort') return 1;
+  return 0;
+};
+
 const parsePriceToINR = (price) => {
   if (!price) return null;
   const raw = price.toString().trim();
   const lower = raw.toLowerCase();
   const numeric = extractNumericValue(raw);
+  if (lower === 'priceless' || lower === 'time and effort') {
+    return Number.POSITIVE_INFINITY;
+  }
   if (numeric == null) return null;
 
   if (/^rs\.?/i.test(raw) || lower.startsWith('rs')) {
@@ -495,6 +506,11 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
     const sorted = [...filteredImages];
     if (sortMethod === 'most-least') {
       sorted.sort((a, b) => {
+        const aPriority = getPricePriority(a.price);
+        const bPriority = getPricePriority(b.price);
+        if (aPriority !== bPriority) {
+          return bPriority - aPriority;
+        }
         const aValue = parsePriceToINR(a.price);
         const bValue = parsePriceToINR(b.price);
         const aNum = aValue ?? Number.NEGATIVE_INFINITY;
@@ -503,6 +519,11 @@ function Gallery({ viewMode = 'grid', activeCategories = [], acquisition = 'All'
       });
     } else if (sortMethod === 'least-most') {
       sorted.sort((a, b) => {
+        const aPriority = getPricePriority(a.price);
+        const bPriority = getPricePriority(b.price);
+        if (aPriority !== bPriority) {
+          return aPriority - bPriority;
+        }
         const aValue = parsePriceToINR(a.price);
         const bValue = parsePriceToINR(b.price);
         const aNum = aValue ?? Number.POSITIVE_INFINITY;

@@ -1014,6 +1014,12 @@
   font-family: var(--font-display);
 }
 
+.theme-grid .canvas-meta {
+  background: var(--bg-header);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .sort-selector {
   position: relative;
   display: inline-block;
